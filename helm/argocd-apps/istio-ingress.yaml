@@ -13,20 +13,22 @@ spec:
     targetRevision: 1.22.1
     helm:
       values: |
-        labels:
-          istio: ingressgateway
-        service:
-          type: NodePort # Optimized for Minikube, switch to LoadBalancer for Cloud Providers
-          ports:
-            - name: status-port
-              port: 15021
-              targetPort: 15021
-            - name: http2
-              port: 80
-              targetPort: 80
-            - name: https
-              port: 443
-              targetPort: 443
+        # 🌟 NEST EVERYTHING UNDER THE GATEWAY OBJECT
+        gateway:
+          labels:
+            istio: ingressgateway
+          service:
+            type: NodePort # Optimized for Minikube
+            ports:
+              - name: status-port
+                port: 15021
+                targetPort: 15021
+              - name: http2
+                port: 80
+                targetPort: 80
+              - name: https
+                port: 443
+                targetPort: 443
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system

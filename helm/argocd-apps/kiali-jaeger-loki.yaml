@@ -58,18 +58,20 @@ spec:
       targetRevision: 3.1.0
       helm:
         values: |
-          # 🌟 FORCES THE SERVICE TO BE NAMED EXACTLY "jaeger-collector"
           nameOverride: "jaeger"
           fullnameOverride: "jaeger"
           provisionDataStore:
             cassandra: false
           allInOne:
             enabled: true
+            # 🌟 ADD THESE TWO LINES BELOW TO FIX THE STORAGE TEMPLATE ERROR
+            storage:
+              type: memory
           collector:
             service:
               otlp:
                 grpc:
-                  enabled: true # Ensures port 4317 is explicitly exposed
+                  enabled: true
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
