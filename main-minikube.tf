@@ -159,36 +159,75 @@ resource "kubernetes_persistent_volume" "grafana_pv" {
 }
 
 
-# 3. Bootstrap Application Infrastructure using Native PowerShell local-exec
-resource "null_resource" "bootstrap_argocd_apps" {
-  depends_on = [helm_release.argocd]
+# # 3. Bootstrap Application Infrastructure using Native PowerShell local-exec
+# resource "null_resource" "bootstrap_argocd_apps" {
+#   depends_on = [helm_release.argocd]
 
-  provisioner "local-exec" {
-    command = <<EOT
-      $manifest = @"
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: root-infrastructure-stack
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: 'https://github.com/goniusman/GitOps.git'
-    targetRevision: master
-    path: helm/bookverse
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: bookverse
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-"@
-      $manifest | kubectl apply -f -
-    EOT
-    interpreter = ["PowerShell", "-Command"]
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       $manifest = @"
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: root-infrastructure-stack
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: 'https://github.com/goniusman/GitOps.git'
+#     targetRevision: master
+#     path: helm/bookverse
+#   destination:
+#     server: 'https://kubernetes.default.svc'
+#     namespace: bookverse
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+# "@
+#       $manifest | kubectl apply -f -
+#     EOT
+#     interpreter = ["PowerShell", "-Command"]
+#   }
+# }
+
+
+
+# 🌟 KEEP ONLY THIS SINGLE ROOT CONSOLE IN TERRAFORM
+resource "kubernetes_manifest" "argocd_root_application" {
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+    metadata = {
+      name      = "root-infrastructure-stack" # This is the ultimate parent app
+      namespace = "argocd"
+    }
+    spec = {
+      project = "default"
+      source = {
+        repoURL        = "https://github.com/goniusman/GitOps.git"
+        targetRevision = "master"
+        path           = "helm/istio/" # 👈 MUST point to the orchestrator folder
+      }
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = "argocd"
+      }
+      syncPolicy = {
+        automated = {
+          prune    = true
+          selfHeal = true
+        }
+      }
+    }
   }
+  depends_on = [null_resource.wait_for_argocd]
 }
+
+
+
+
+
+
