@@ -37,14 +37,14 @@ spec:
 
             - name: POSTGRES_USER
               valueFrom:
-                secretKeyRef:
-                  name: app-secrets
+                configMapKeyRef:
+                  name: app-config
                   key: DB_USERNAME
 
             - name: POSTGRES_PASSWORD
               valueFrom:
-                secretKeyRef:
-                  name: app-secrets
+                configMapKeyRef:
+                  name: app-config
                   key: DB_PASSWORD
 
             - name: PGDATA
