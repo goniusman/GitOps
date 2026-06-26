@@ -3,5 +3,4 @@ kind: Namespace
 metadata:
   name: bookverse
   labels:
-    # 🌟 THIS LINE TELLS ISTIO TO TAKE CONTROL OF THIS NAMESPACE
     istio-injection: enabled

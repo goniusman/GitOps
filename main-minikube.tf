@@ -150,7 +150,7 @@ spec:
   source:
     repoURL: 'https://github.com/goniusman/GitOps.git'
     targetRevision: master
-    path: helm/bookverse/
+    path: helm/bookverse
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: bookverse
