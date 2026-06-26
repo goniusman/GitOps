@@ -4,8 +4,6 @@ metadata:
   name: postgres
   namespace: bookverse
 spec:
-  securityContext:
-      fsGroup: 999
   serviceName: postgres
   replicas: 1
   selector:
@@ -20,44 +18,49 @@ spec:
         app.kubernetes.io/part-of: bookverse
     spec:
       securityContext:
+        fsGroup: 999
         runAsUser: 999
         runAsGroup: 999
+
+      # This fixes the "Permission denied" error by pre-setting directory ownership
+      initContainers:
+        - name: fix-permissions
+          image: busybox:1.36
+          command: ["sh", "-c", "chown -R 999:999 /var/lib/postgresql/data"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
 
       containers:
         - name: postgres
           image: postgres:15
-
-          securityContext:
-            runAsUser: 999
-            runAsGroup: 999
-
           env:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: DB_NAME_AUTH
-
             - name: POSTGRES_USER
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: DB_USERNAME
-
             - name: POSTGRES_PASSWORD
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: DB_PASSWORD
-
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
+          
           startupProbe:
             exec:
               command:
                 - sh
                 - -c
-                - pg_isready -U "$POSTGRES_USER"
+                - pg_isready -U postgres
             failureThreshold: 30
             periodSeconds: 10
 
@@ -66,7 +69,7 @@ spec:
               command:
                 - sh
                 - -c
-                - pg_isready -U "$POSTGRES_USER"
+                - pg_isready -U postgres
             initialDelaySeconds: 10
             periodSeconds: 5
 
@@ -75,7 +78,7 @@ spec:
               command:
                 - sh
                 - -c
-                - pg_isready -U "$POSTGRES_USER"
+                - pg_isready -U postgres
             initialDelaySeconds: 30
             periodSeconds: 10
 
@@ -98,7 +101,7 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 1Gi # Fits comfortably within local minikube storage limits
+            storage: 1Gi
 
 ---
 apiVersion: v1
@@ -113,4 +116,3 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-
