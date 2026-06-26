@@ -128,6 +128,35 @@ resource "helm_release" "argocd" {
 #   }
 # }
 
+# --- PROMETHEUS CORE STORAGE ---
+resource "kubernetes_persistent_volume" "prometheus_pv" {
+  metadata { name = "prometheus-pv" }
+  spec {
+    capacity           = { storage = "10Gi" }
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = "manual"
+    persistent_volume_source {
+      host_path {
+        path = "/mnt/data/prometheus" # Maps to your local drive data pool
+      }
+    }
+  }
+}
+
+# --- GRAFANA DASHBOARD STORAGE ---
+resource "kubernetes_persistent_volume" "grafana_pv" {
+  metadata { name = "grafana-pv" }
+  spec {
+    capacity           = { storage = "5Gi" }
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = "manual"
+    persistent_volume_source {
+      host_path {
+        path = "/mnt/data/grafana" # Maps to your local drive data pool
+      }
+    }
+  }
+}
 
 
 # 3. Bootstrap Application Infrastructure using Native PowerShell local-exec

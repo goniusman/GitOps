@@ -21,9 +21,9 @@ spec:
           accessLogFile: /dev/stdout
           enableAutoMtls: true
           defaultConfig:
-            proxyMetadata:
+            proxyMetadata: {}
               # Enables Prometheus scraping natively via telemetry annotations
-              OUTPUT_CERTS: "/etc/istio-certs"
+              # OUTPUT_CERTS: "/etc/istio-certs"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system
