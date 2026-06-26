@@ -43,35 +43,40 @@ spec:
       targetRevision: 1.85.0
       helm:
         values: |
-          auth:
-            strategy: anonymous
-          external_services:
-            tracing:
-              url: http://jaeger-query.monitoring.svc.cluster.local:16686
+          # 🌟 WRAP EVERYTHING IN THIS ROOT KEY FOR MULTI-SOURCE APP VALUES
+          kiali:
+            auth:
+              strategy: anonymous
+            external_services:
+              tracing:
+                url: http://jaeger-query.monitoring.svc.cluster.local:16686
             prometheus:
               url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
             grafana:
               url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
 
     # --- JAEGER ---
+
     - repoURL: 'https://jaegertracing.github.io/helm-charts'
       chart: jaeger
       targetRevision: 3.1.0
       helm:
         values: |
-          nameOverride: "jaeger"
-          fullnameOverride: "jaeger"
-          provisionDataStore:
-            cassandra: false
-          allInOne:
-            enabled: true
-            storage:
-              type: memory     # 🌟 This prevents the template compilation failure
-          collector:
-            service:
-              otlp:
-                grpc:
-                  enabled: true
+          # 🌟 WRAP EVERYTHING IN THIS ROOT KEY FOR MULTI-SOURCE APP VALUES
+          jaeger:
+            nameOverride: "jaeger"
+            fullnameOverride: "jaeger"
+            provisionDataStore:
+              cassandra: false
+            allInOne:
+              enabled: true
+              storage:
+                type: memory
+            collector:
+              service:
+                otlp:
+                  grpc:
+                    enabled: true
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
