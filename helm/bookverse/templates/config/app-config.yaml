@@ -16,7 +16,9 @@ data:
 
 
 
-
+  POSTGRES_DB: bookverse_auth
+  POSTGRES_USER: bookverse
+  REPLICATION_USER: replicator
 
 
   DB_MASTER_HOST: "bookverse-postgresql-primary"
