@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bookverse
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookverse
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/goniusman/GitOps'
+    targetRevision: master  # Changed from HEAD to your explicit branch name
+    path: helm/bookverse/  # FIXED: Points to the exact folder where Chart.yaml lives
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: bookverse
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
