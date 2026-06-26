@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookverse-api-gateway
+  namespace: bookverse
+spec:
+  replicas: 1 # Scale to multiple pods for enterprise high-availability
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: nginx-core
+        image: nginx:1.25-alpine # Production-stable minimal runtime
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        volumeMounts:
+        - name: main-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: sub-configs
+          mountPath: /etc/nginx/conf.d/upstreams.conf
+          subPath: upstreams.conf
+        - name: sub-configs
+          mountPath: /etc/nginx/conf.d/security_headers.conf
+          subPath: security_headers.conf
+        - name: sub-configs
+          mountPath: /etc/nginx/tracing.conf
+          subPath: tracing.conf 
+        - name: routes-configs
+          mountPath: /etc/nginx/routes/auth.conf
+          subPath: auth.conf
+        - name: routes-configs
+          mountPath: /etc/nginx/routes/books.conf
+          subPath: books.conf
+        - name: routes-configs
+          mountPath: /etc/nginx/routes/orders.conf
+          subPath: orders.conf
+        - name: routes-configs
+          mountPath: /etc/nginx/routes/users.conf
+          subPath: users.conf
+        - name: routes-configs
+          mountPath: /etc/nginx/routes/review.conf
+          subPath: review.conf
+
+      volumes:
+      - name: main-config
+        configMap:
+          name: bookverse-nginx-configmap
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+      - name: sub-configs
+        configMap:
+          name: bookverse-nginx-configmap
+          items:
+          - key: upstreams.conf
+            path: upstreams.conf
+          - key: security_headers.conf
+            path: security_headers.conf
+          - key: tracing.conf
+            path: tracing.conf
+      - name: routes-configs
+        configMap:
+          name: bookverse-nginx-configmap
+          items:
+          - key: auth.conf
+            path: auth.conf
+          - key: books.conf
+            path: books.conf
+          - key: orders.conf
+            path: orders.conf
+          - key: users.conf
+            path: users.conf
+          - key: review.conf
+            path: review.conf
+
+
+
+
+
+
+
+
+

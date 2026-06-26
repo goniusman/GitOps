@@ -1,0 +1,295 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bookverse-nginx-configmap
+  namespace: bookverse
+data:
+  # The filenames match the NGINX folder structures exactly
+  # ---------------------------------------------------------
+  # FILE 1: nginx.conf (The Main Entry Point)
+  # ---------------------------------------------------------
+  nginx.conf: |
+    worker_processes auto;
+    worker_rlimit_nofile 65535; # Boosts file descriptors for massive concurrency
+
+    events {
+        worker_connections 8192;
+        multi_accept on;
+        use epoll;
+    }
+
+    http {
+        include       mime.types;
+        default_type  application/octet-stream;
+
+        # Drop connections quickly if a service is unresponsive
+        proxy_connect_timeout 5s;  # Time allowed to establish connection to NestJS
+        proxy_send_timeout    10s; # Time allowed to transmit data to NestJS
+        proxy_read_timeout    10s; # Time allowed for NestJS to process and reply
+        
+        # Performance Tuning
+        sendfile           on;
+        tcp_nopush         on;
+        tcp_nodelay        on;
+        keepalive_timeout  65;
+        types_hash_max_size 2048;
+        server_tokens      off; # Hides NGINX version for security
+
+        # --- 1. ENTERPRISE GLOBAL RATE LIMITING ---
+        # 10MB memory zone tracks ~160,000 unique client states concurrently
+        # limit_req_zone $binary_remote_addr zone=global_ip_limit:10m rate=20r/s;
+        # limit_req_status 429;
+
+        # 1. CENTRALIZED DEFINITION: Set up cache path and memory key zone (10 megabytes of keys, 1 gigabyte of data)
+        proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=BOOKVERSE_CACHE:10m max_size=1g inactive=60m use_temp_path=off;
+
+        # --- 2. HIGH-THROUGHPUT METRIC LOGGING ---
+        log_format enterprise_json escape=json '{'
+            '"timestamp":"$time_iso8601",'
+            '"request_id":"$request_id",'
+            '"client_ip":"$remote_addr",'
+            '"method":"$request_method",'
+            '"uri":"$request_uri",'
+            '"status":$status,'
+            '"bytes_sent":$body_bytes_sent,'
+            '"latency_ms":$request_time,'
+            '"upstream_response_time":"$upstream_response_time",'
+            '"http_referrer":"$http_referer",'
+            '"user_agent":"$http_user_agent"'
+        '}';
+        access_log /dev/stdout enterprise_json;
+
+        # Load Decoupled Architecture Components
+        include /etc/nginx/conf.d/upstreams.conf;
+        include /etc/nginx/conf.d/security_headers.conf;
+        
+        # Core Server Declaration
+        server {
+            listen 80;
+            server_name gateway.local;
+
+            # Enforce global protection layer immediately
+            # limit_req zone=global_ip_limit burst=30 nodelay;
+            
+            # Inject tracking metadata globally
+            add_header X-Gateway-Request-ID $request_id always;
+
+            # Apply globally to all locations that don't override it
+            include /etc/nginx/tracing.conf;
+
+            # Load domain service paths
+            include /etc/nginx/routes/*.conf;
+
+            # Custom Global Error Interception Page
+            error_page 500 502 503 504 /errors/5xx.json;
+            location = /errors/5xx.json {
+                internal;
+                return 503 '{"error": "Service Unavailable", "message": "The platform is experiencing unexpected lag. Please retry shortly.", "tracking_id": "$request_id"}';
+                add_header Content-Type application/json;
+            }
+        }
+    }
+  
+  # ---------------------------------------------------------
+  # FILE 2: conf.d/upstreams.conf (Service Clustering)
+  # ---------------------------------------------------------
+  upstreams.conf: |
+    upstream auth_cluster   { server auth:3001; }
+    upstream book_cluster   { server book:3002; }
+    upstream order_cluster  { server order:3003; }
+    upstream user_cluster  { server user:3004; }
+    upstream review_cluster  { server review:3005; }
+
+
+  # ---------------------------------------------------------
+  # FILE 2: conf.d/upstreams.conf (Service Clustering)
+  # ---------------------------------------------------------
+  tracing.conf: |
+    # =======================================================
+    # GLOBAL HEADERS (Inherited by all locations below)
+    # =======================================================
+    # W3C Trace Context (Modern OpenTelemetry)
+    proxy_set_header traceparent        $http_traceparent;
+    proxy_set_header tracestate         $http_tracestate;
+
+    # B3 Propagation (Istio / Jaeger)
+    proxy_set_header x-request-id       $http_x_request_id;
+    proxy_set_header x-b3-traceid       $http_x_b3_traceid;
+    proxy_set_header x-b3-spanid        $http_x_b3_spanid;
+    proxy_set_header x-b3-parentspanid  $http_x_b3_parentspanid;
+    proxy_set_header x-b3-sampled       $http_x_b3_sampled;
+    proxy_set_header b3                 $http_b3;
+
+    # Standard Proxy Headers
+    proxy_set_header Host               $host;
+    proxy_set_header X-Real-IP          $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    
+    # proxy_set_header X-Request-ID $request_id;
+  
+  
+  # ---------------------------------------------------------
+  # FILE 3: conf.d/security_headers.conf (OWASP Hardening)
+  # ---------------------------------------------------------
+  security_headers.conf: |
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Content-Security-Policy "default-src 'self'; frame-ancestors 'none';" always;
+  
+  # ---------------------------------------------------------
+  # FILE 4: routes/auth.conf (Identity Paths)
+  # ---------------------------------------------------------
+  auth.conf: |
+    # Public Facing Identity Endpoints
+    location /auth {
+        proxy_pass http://auth_cluster;
+
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+
+        # Fail-safe circuit break configuration
+        proxy_next_upstream error timeout http_502 http_503;
+        proxy_next_upstream_tries 2;
+    }
+
+    # Hidden Internal Loop for Forward Authentication Verification
+    location = /_auth_validation_gate {
+        internal;
+        proxy_pass http://auth_cluster/auth/validate-gateway;
+        
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+
+        # Save egress payload performance costs
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
+    }
+  
+  # ---------------------------------------------------------
+  # FILE 5: routes/books.conf (Catalog Paths)
+  # ---------------------------------------------------------
+  books.conf: |
+    location /books {
+        # 2. SELECTIVE PER-ROUTE: Cache public book listings
+        proxy_cache BOOKVERSE_CACHE;
+        proxy_cache_valid 200 10m; # Cache successful requests for 10 minutes
+        proxy_cache_use_stale error timeout updating;
+
+        proxy_pass http://book_cluster;
+     
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+
+        # Fail-safe circuit break configuration
+        proxy_next_upstream error timeout http_502 http_503;
+        proxy_next_upstream_tries 2;
+
+    }
+
+    location /books/upload {
+        # Allow up to 20 Megabyte PDF/image transfers
+        client_max_body_size 20m; 
+
+        proxy_pass http://book_cluster;
+
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+    }
+      
+  # ---------------------------------------------------------
+  # FILE 6: routes/orders.conf (Protected Paths)
+  # ---------------------------------------------------------
+  orders.conf: |
+    location /orders {
+        # 1. Hault request and query the NestJS validation engine
+        auth_request /_auth_validation_gate;
+
+        # 2. Extract standard token output headers returned by NestJS
+        auth_request_set $user_id    $upstream_http_x_user_id;
+        auth_request_set $user_email $upstream_http_x_user_email;
+        auth_request_set $user_role  $upstream_http_x_user_role;
+
+        # 3. Inject extracted metadata forward as incoming headers to the microservice
+        proxy_set_header X-User-Id    $user_id;
+        proxy_set_header X-User-Email $user_email;
+        proxy_set_header X-User-Role  $user_role;
+
+        # 4. Route payload safely to downstream backend infrastructure
+        proxy_pass http://order_cluster;
+
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+
+    }
+
+
+  # ---------------------------------------------------------
+  # FILE 6: routes/users.conf (Protected Paths)
+  # ---------------------------------------------------------
+  users.conf: |
+    location /users {
+        # 1. Hault request and query the NestJS validation engine
+        auth_request /_auth_validation_gate;
+
+        # 2. Extract standard token output headers returned by NestJS
+        auth_request_set $user_id    $upstream_http_x_user_id;
+        auth_request_set $user_email $upstream_http_x_user_email;
+        auth_request_set $user_role  $upstream_http_x_user_role;
+
+        # 3. Inject extracted metadata forward as incoming headers to the microservice
+        proxy_set_header X-User-Id    $user_id;
+        proxy_set_header X-User-Email $user_email;
+        proxy_set_header X-User-Role  $user_role;
+
+        # 3. SELECTIVE PER-ROUTE: Dynamic user profile (DO NOT CACHE)
+        proxy_cache off; # Explicitly bypassed for dynamic personal data
+        
+        # 4. Route payload safely to downstream backend infrastructure
+        proxy_pass http://user_cluster;
+        
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+
+    }
+
+
+
+  # ---------------------------------------------------------
+  # FILE 6: routes/reviews.conf (Protected Paths)
+  # ---------------------------------------------------------
+  review.conf: |
+    location /review {
+        # 1. Hault request and query the NestJS validation engine
+        auth_request /_auth_validation_gate;
+
+        # 2. Extract standard token output headers returned by NestJS
+        auth_request_set $user_id    $upstream_http_x_user_id;
+        auth_request_set $user_email $upstream_http_x_user_email;
+        auth_request_set $user_role  $upstream_http_x_user_role;
+
+        # 3. Inject extracted metadata forward as incoming headers to the microservice
+        proxy_set_header X-User-Id    $user_id;
+        proxy_set_header X-User-Email $user_email;
+        proxy_set_header X-User-Role  $user_role;
+
+        # 4. Route payload safely to downstream backend infrastructure
+        proxy_pass http://review_cluster;
+       
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+
+    }
+
+
+
+  

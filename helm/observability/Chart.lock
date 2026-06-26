@@ -1,0 +1,18 @@
+dependencies:
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 8.5.1
+- name: loki
+  repository: https://grafana.github.io/helm-charts
+  version: 6.18.0
+- name: tempo
+  repository: https://grafana.github.io/helm-charts
+  version: 1.9.0
+- name: victoria-metrics-single
+  repository: https://victoriametrics.github.io/helm-charts
+  version: 0.13.0
+- name: alloy
+  repository: https://grafana.github.io/helm-charts
+  version: 0.3.2
+digest: sha256:99455c3777ae234e405823682bdb35db2b1d138736a8d5e42a16f3421c9059f0
+generated: "2026-06-17T19:39:17.389264+06:00"

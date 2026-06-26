@@ -1,0 +1,148 @@
+name: GitOps CD Pipeline
+
+on:
+  repository_dispatch:
+    types:
+      - update-images
+  push:
+    branches:
+      - main 
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gitops-cd
+  cancel-in-progress: false
+
+jobs:
+  update-manifests:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      ############################################################
+      # Checkout
+      ############################################################
+      - name: Checkout GitOps Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      ############################################################
+      # Setup tools
+      ############################################################
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.15.2
+
+      - name: Install yq
+        run: |
+          sudo wget -q \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+            -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+      ############################################################
+      # Extract payload safely
+      ############################################################
+      - name: Parse Payload
+        id: payload
+        run: |
+          echo '${{ toJson(github.event.client_payload) }}' > payload.json
+
+          SERVICES=$(jq -c '.services' payload.json)
+          SHA=$(jq -r '.sha' payload.json)
+
+          echo "services=$SERVICES" >> $GITHUB_OUTPUT
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+      ############################################################
+      # Update Helm values (batch-safe)
+      ############################################################
+      - name: Update Image Tags
+        run: |
+          SERVICES='${{ steps.payload.outputs.services }}'
+          SHA='${{ steps.payload.outputs.sha }}'
+
+          echo "$SERVICES" | jq -r '.[]' | while read SERVICE
+          do
+            echo "Updating: $SERVICE → $SHA"
+
+            yq e \
+              ".${SERVICE}.image.tag = \"${SHA}\"" \
+              -i helm/bookverse/values.yaml
+          done
+
+      ############################################################
+      # Validation layer (important in enterprise setups)
+      ############################################################
+      - name: Helm Lint
+        run: helm lint ./helm/bookverse
+
+      - name: Helm Render Check
+        run: |
+          helm template bookverse \
+            ./helm/bookverse \
+            -f helm/bookverse/values.yaml > rendered.yaml
+
+      ############################################################
+      # Idempotency guard (prevents empty commits)
+      ############################################################
+      - name: Check Changes
+        id: gitcheck
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      ###################################################
+      # Kubernetes Validation (optional)
+      ###################################################
+
+      - name: Install kubeconform (safe)
+        run: |
+          VERSION="v0.6.7"
+      
+          curl -L -o kubeconform.tar.gz \
+            https://github.com/yannh/kubeconform/releases/download/${VERSION}/kubeconform-linux-amd64.tar.gz
+      
+          file kubeconform.tar.gz
+      
+          tar -xzf kubeconform.tar.gz
+      
+          sudo mv kubeconform /usr/local/bin/
+      
+          kubeconform -v
+
+      ###################################################
+      # Commit
+      ###################################################
+
+      ############################################################
+      # Commit only if needed
+      ############################################################
+      - name: Commit Changes
+        if: steps.gitcheck.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          SERVICES=$(echo '${{ steps.payload.outputs.services }}' | jq -r 'join(",")')
+
+          git add helm/bookverse/values.yaml
+
+          git commit -m "chore(gitops): deploy [$SERVICES] → ${GITHUB_SHA::7}"
+
+      ############################################################
+      # Safe push (handles race conditions)
+      ############################################################
+      - name: Push Changes
+        if: steps.gitcheck.outputs.changed == 'true'
+        run: |
+          git pull --rebase origin master
+          git push origin master
+
+

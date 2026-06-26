@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    chart: kube-prometheus-stack
+    targetRevision: 61.3.1
+    helm:
+      values: |
+        prometheus:
+          prometheusSpec:
+            podAntiAffinity: "soft"
+            # Ensures Prometheus auto-discovers custom ServiceMonitors/PodMonitors cluster-wide
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: manual
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 10Gi
+        grafana:
+          enabled: true
+          persistence:
+            enabled: true
+            storageClassName: manual
+            size: 5Gi
+          additionalDataSources:
+            - name: Loki
+              type: loki
+              access: proxy
+              url: http://loki-distributed-query-frontend.monitoring.svc.cluster.local:3100
+              jsonData:
+                maxLines: 1000
+        # Enable collection rules for Istio core metrics
+        additionalServiceMonitors:
+          - name: istio-mesh-monitor
+            additionalLabels:
+              release: kube-prometheus-stack
+            endpoints:
+              - port: http-monitoring
+                interval: 15s
+            namespaceSelector:
+              matchNames:
+                - istio-system
+            selector:
+              matchLabels:
+                app: istiod
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

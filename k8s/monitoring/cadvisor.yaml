@@ -1,0 +1,126 @@
+# ==========================================
+# CADVISOR (DaemonSet for K8s container metrics)
+# ==========================================
+
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cadvisor
+  namespace: monitoring
+  labels:
+    app: cadvisor
+spec:
+  selector:
+    matchLabels:
+      app: cadvisor
+
+  template:
+    metadata:
+      labels:
+        app: cadvisor
+
+    spec:
+      automountServiceAccountToken: false
+
+      containers:
+      - name: cadvisor
+
+        image: gcr.io/cadvisor/cadvisor:v0.49.1
+
+        imagePullPolicy: IfNotPresent
+
+        securityContext:
+          privileged: true
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+        volumeMounts:
+        - name: rootfs
+          mountPath: /rootfs
+          readOnly: true
+
+        - name: var-run
+          mountPath: /var/run
+
+        - name: sys
+          mountPath: /sys
+          readOnly: true
+
+        - name: containerd
+          mountPath: /var/lib/containerd
+          readOnly: true
+
+        - name: disk
+          mountPath: /dev/disk
+          readOnly: true
+
+      volumes:
+      - name: rootfs
+        hostPath:
+          path: /
+
+      - name: var-run
+        hostPath:
+          path: /var/run
+
+      - name: sys
+        hostPath:
+          path: /sys
+
+      - name: containerd
+        hostPath:
+          path: /var/lib/containerd
+
+      - name: disk
+        hostPath:
+          path: /dev/disk
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cadvisor
+  namespace: monitoring
+  labels:
+    app: cadvisor
+spec:
+  selector:
+    app: cadvisor
+
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cadvisor
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: cadvisor
+
+  endpoints:
+  - port: http
+    interval: 15s
+
+  namespaceSelector:
+    matchNames:
+    - monitoring

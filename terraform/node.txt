@@ -1,0 +1,17 @@
+export AWS_ACCESS_KEY_ID="AKIAXXXXXXXXXXXXXXXX"
+export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+
+
+cd terraform/
+terraform init
+terraform apply -auto-approve
+
+
+cd ../ansible/
+ansible-playbook -i environments/production/hosts.yml site.yml
+
+
+
+terraform apply
+
+

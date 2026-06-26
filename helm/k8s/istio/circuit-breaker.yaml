@@ -1,0 +1,29 @@
+# apiVersion: networking.istio.io/v1
+
+# kind: DestinationRule
+
+# metadata:
+#   name: book-service
+
+# spec:
+#   host: book-service
+
+#   trafficPolicy:
+  
+#     loadBalancer:
+#     simple: LEAST_REQUEST
+
+#     connectionPool:
+
+#       tcp:
+#         maxConnections: 10
+
+#       http:
+#         http1MaxPendingRequests: 20
+#         maxRequestsPerConnection: 10
+
+#     outlierDetection:
+#       consecutive5xxErrors: 3
+#       interval: 5s
+#       baseEjectionTime: 30s
+#       maxEjectionPercent: 100

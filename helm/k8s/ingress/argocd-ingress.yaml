@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-ingress
+  namespace: argocd # Must live in the same namespace as ArgoCD!
+  annotations:
+    # nginx.ingress.kubernetes.io/backend-protocol: "HTTP" # Changed from HTTPS
+    ## for ssl
+    # Tells Nginx that the backend service expects secure HTTPS data streams
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    # # Force redirect HTTP to HTTPS so your browser gets the secure cookie context
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # # Increase proxy buffers so large auth tokens/cookies don't get truncated
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+spec:
+  ingressClassName: nginx # Ensure your ingress class is explicitly defined
+  rules:
+    - host: argocd.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - argocd.local
+      secretName: argocd-server-tls # Even if empty or self-signed, Ngi
+
+    # # 4. ArgoCD  -> http://argocd.local/
+    # - host: argocd.local  
+    #   http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: argocd-server
+    #             port:
+    #               number: 443

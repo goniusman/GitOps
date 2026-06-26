@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  namespace: {{ .Values.global.namespace }}
+spec:
+  replicas: {{ .Values.user.replicaCount }}
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      annotations:
+        proxy.istio.io/config: |
+          holdApplicationUntilProxyStarts: true
+      labels:
+        app: user
+        app.kubernetes.io/name: user
+        app.kubernetes.io/component: microservice
+        app.kubernetes.io/part-of: bookverse
+    spec:
+      containers:
+        - name: user
+          image: "{{ .Values.user.image.repository }}:{{ .Values.user.image.tag }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.user.service.port }}
+
+          envFrom:
+            # - configMapRef:
+            #     name: user-config
+            - configMapRef:
+                name: app-config
+            # - secretRef:
+            #     name: user-secrets
+            - secretRef:
+                name: app-secrets
+            # - secretRef:
+            #     name: bookverse-postgresql-credentials
+
+          env:
+            - name: "PORT"
+              value: "{{ .Values.user.service.port }}"
+            - name: OTEL_SERVICE_NAME
+              value: "user"
+            # - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            #   value: "http://jaeger.bookverse.svc.cluster.local:4317"
+              
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: {{ .Values.user.service.port }}
+
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: {{ .Values.user.service.port }}
+
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi

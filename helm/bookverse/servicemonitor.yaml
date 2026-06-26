@@ -1,0 +1,159 @@
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: {{ .Values.gateway.name }}
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     release: prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Values.gateway.name }}
+
+#   namespaceSelector:
+#     matchNames:
+#       - {{ .Values.global.namespace }}
+
+#   endpoints:
+#     - port: http
+#       path: /metrics
+#       interval: 15s
+
+
+# --- 
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: {{ .Values.auth.name }}
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     release: prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Values.auth.name }}
+
+#   namespaceSelector:
+#     matchNames:
+#       - {{ .Values.global.namespace }}
+
+#   endpoints:
+#     - port: http
+#       path: /metrics
+#       interval: 15s
+
+
+# --- 
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: {{ .Values.book.name }}
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     release: prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Values.book.name }}
+
+#   namespaceSelector:
+#     matchNames:
+#       - {{ .Values.global.namespace }}
+
+#   endpoints:
+#     - port: http
+#       path: /metrics
+#       interval: 15s
+
+
+# --- 
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: {{ .Values.order.name }}
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     release: prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Values.order.name }}
+
+#   namespaceSelector:
+#     matchNames:
+#       - {{ .Values.global.namespace }}
+
+#   endpoints:
+#     - port: http
+#       path: /metrics
+#       interval: 15s
+
+
+# --- 
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: {{ .Values.user.name }}
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     release: prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Values.user.name }}
+
+#   namespaceSelector:
+#     matchNames:
+#       - {{ .Values.global.namespace }}
+
+#   endpoints:
+#     - port: http
+#       path: /metrics
+#       interval: 15s
+
+
+
+# --- 
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: {{ .Values.review.name }}
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     release: prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Values.review.name }}
+
+#   namespaceSelector:
+#     matchNames:
+#       - {{ .Values.global.namespace }}
+
+#   endpoints:
+#     - port: http
+#       path: /metrics
+#       interval: 15s
+
+
+# --- 
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: {{ .Values.notification.name }}
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     release: prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: {{ .Values.notification.name }}
+
+#   namespaceSelector:
+#     matchNames:
+#       - {{ .Values.global.namespace }}
+
+#   endpoints:
+#     - port: http
+#       path: /metrics
+#       interval: 15s

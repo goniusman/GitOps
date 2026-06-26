@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+  namespace: bookverse
+data:
+  PORT: "3001"
+  ACCESS_TOKEN_EXPIRES: "15m"
+  REFRESH_TOKEN_EXPIRES: "7d"

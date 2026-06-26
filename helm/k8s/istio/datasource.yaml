@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: istio-system
+  labels:
+    grafana_datasource: "1"
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus.istio-system.svc.cluster.local:9090
+      isDefault: true
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.istio-system.svc.cluster.local:3100
+
+    - name: Jaeger
+      type: jaeger
+      url: http://jaeger-collector.istio-system.svc.cluster.local:16686
+      access: proxy

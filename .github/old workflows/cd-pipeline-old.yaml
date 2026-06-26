@@ -1,0 +1,69 @@
+# name: GitOps CD Pipeline
+
+# on:
+#   repository_dispatch:
+#     types: [update-image]
+
+# permissions:
+#   contents: write
+
+# concurrency:
+#   group: gitops-cd
+#   cancel-in-progress: true
+
+# jobs:
+#   update-manifest:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # FIX: Removed explicit repository & token flags. 
+#       # Since this file runs INSIDE the GitOps repo, it uses the standard, safe default token automatically.
+#       - name: Checkout Config Repo
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 1
+#           clean: true
+
+
+#       - name: Set up Helm
+#         uses: azure/setup-helm@v4
+#         with:
+#           version: 'v3.12.0'
+          
+#       # Add these steps to your pipeline *before* applying the changes
+#       - name: Lint Helm Chart
+#         run: helm lint ./helm/bookverse
+
+#       - name: Validate Dry Run
+#         run: helm upgrade --install bookverse ./helm/bookverse -f values.yaml --dry-run
+
+#       - name: Setup yq
+#         run: |
+#           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+#           sudo chmod +x /usr/bin/yq
+
+#       - name: Update Service Tag in values.yaml
+#         run: |
+#           SERVICE="${{ github.event.client_payload.service }}"
+#           SHA="${{ github.event.client_payload.sha }}"
+          
+#           echo "Updating configuration for service: $SERVICE to image tag: $SHA"
+          
+#           # Modifies helm/bookverse/values.yaml relative to the repository root
+#           yq e ".${SERVICE}.image.tag = \"${SHA}\"" -i helm/bookverse/values.yaml
+
+#       - name: Commit and Push Directly
+#         run: |
+#           git config --global user.name "github-actions[bot]"
+#           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+#           git add helm/bookverse/values.yaml
+          
+#           if git diff --staged --quiet; then
+#             echo "No changes detected in values.yaml"
+#           else
+#             git commit -m "chore(gitops): auto-upgrade ${{ github.event.client_payload.service }} to ${{ github.event.client_payload.sha }}"
+            
+#             # FIX: Automatically finds your default branch (main or master) to prevent push errors
+#             TARGET_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+#             git push origin $TARGET_BRANCH
+#           fi

@@ -1,0 +1,73 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: observability-addons
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    # --- LOKI (Structured Log Storage Engine) ---
+    - repoURL: 'https://grafana.github.io/helm-charts'
+      chart: loki-distributed
+      targetRevision: 0.79.0
+      helm:
+        values: |
+          loki:
+            structuredConfig:
+              ingester:
+                max_transfer_retries: 0
+                chunk_idle_period: 1h
+          # Enable local disk storage persistence
+          schemaConfig:
+            configs:
+              - from: 2020-10-24
+                store: boltdb-shipper
+                object_store: filesystem
+                schema: v11
+                index:
+                  prefix: index_
+                  period: 24h
+          storageConfig:
+            boltdb_shipper:
+              active_index_directory: /var/loki/index
+              cache_location: /var/loki/index_cache
+              resync_interval: 5m
+              shared_store: filesystem
+            filesystem:
+              directory: /var/loki/chunks
+    # --- KIALI (Istio Mesh Console Dashboard) ---
+    - repoURL: 'https://kiali.org/helm-charts'
+      chart: kiali-server
+      targetRevision: 1.85.0
+      helm:
+        values: |
+          auth:
+            strategy: anonymous # Streamlined configuration access for local environments
+          external_services:
+            tracing:
+              url: http://jaeger-query.monitoring.svc.cluster.local:16686
+            prometheus:
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+            grafana:
+              url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
+    # --- JAEGER (Distributed OpenTracing Engine) ---
+    - repoURL: 'https://jaegertracing.github.io/helm-charts'
+      chart: jaeger
+      targetRevision: 3.1.0
+      helm:
+        values: |
+          provisionDataStore:
+            cassandra: false
+          allInOne:
+            enabled: true # Uses streamlined storage memory for efficient internal local tracing
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

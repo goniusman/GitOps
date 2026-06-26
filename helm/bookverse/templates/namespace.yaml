@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bookverse
+
+
+
+---
+# apiVersion: security.istio.io/v1beta1
+# kind: PeerAuthentication
+# metadata:
+#   name: default
+#   namespace: bookverse
+# spec:
+#   mtls:
+#     mode: PERMISSIVE

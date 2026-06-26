@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: network-monitoring
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nagios-config-pvc
+  namespace: network-monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi # Stores your host definition files and historical uptime logs
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nagios-core
+  namespace: network-monitoring
+  labels:
+    app: nagios-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nagios-monitor
+  template:
+    metadata:
+      labels:
+        app: nagios-monitor
+    spec:
+      containers:
+        - name: nagios-container
+          image: jasonrivers/nagios:latest # The most widely trusted community container engine for Nagios
+          ports:
+            - containerPort: 80
+              name: http-ui
+          env:
+            - name: NAGIOSADMIN_USER
+              value: "nagiosadmin"
+            - name: NAGIOSADMIN_PASS
+              value: "EnterprisePass2026!" # Change this for production environments
+            - name: NAGIOS_TIMEZONE
+              value: "UTC"
+          volumeMounts:
+            - name: nagios-storage
+              mountPath: /opt/nagios/etc/ # Keeps your customized monitoring scripts alive
+      volumes:
+        - name: nagios-storage
+          persistentVolumeClaim:
+            claimName: nagios-config-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nagios-ui-service
+  namespace: network-monitoring
+spec:
+  type: NodePort # Allows easy local validation inside Minikube
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  selector:
+    app: nagios-monitor

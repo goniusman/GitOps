@@ -1,0 +1,38 @@
+---
+# group_vars/all.yml
+aws_region: "us-east-1"
+environment: "production"
+
+# GitHub Details for Bookverse Application
+github_user: "your-github-username"
+github_org_repo: "https://github.com/your-username/bookverse-gitops-manifests.git"
+gitops_repo_branch: "main"
+
+# Microservices Config (7 Services)
+bookverse_services:
+  - name: "auth-service"
+  - name: "book-service"
+  - name: "order-service"
+  - name: "user-service"
+  - name: "inventory-service"
+  - name: "payment-service"
+  - name: "notification-service"
+
+# Enterprise Infrastructure Versioning
+k3s_version: "v1.28.2+k3s1" # Light, stable production K8s engine
+argocd_chart_version: "5.51.1"
+kube_prometheus_stack_version: "55.0.0"
+
+# Secrets (In production, use ansible-vault to encrypt these)
+db_password: "SuperSecretEnterpriseDBPassword123!"
+rabbitmq_password: "SecureRabbitMQPassword2026!"
+
+
+
+
+
+
+
+
+
+

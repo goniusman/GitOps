@@ -1,0 +1,286 @@
+global:
+  namespace: observability
+
+grafana:
+  adminPassword: admin123
+  sidecar:
+    dashboards:
+      enabled: true
+    datasources:
+      enabled: true
+  service:
+    type: ClusterIP
+
+  # Explicit boundaries for Grafana
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  additionalDataSources:
+    - name: VictoriaMetrics
+      type: prometheus
+      url: http://observability-victoria-metrics-single-server:8428
+      # access: proxy
+      # isDefault: true
+
+    - name: Loki
+      type: loki
+      url: http://observability-loki:3100
+      # url: http://observability-loki-gateway:80
+      # access: proxy
+      # jsonData:
+      #   derivedFields:
+      #     - datasourceUid: "tempo"
+      #       matcherRegex: "trace_id=(\\w+)"
+      #       name: "TraceID"
+      #       url: "$${__value.raw}"
+
+    - name: Tempo
+      type: tempo
+      # uid: "tempo"
+      url: http://observability-tempo:3100
+      # access: proxy
+
+
+victoria-metrics-single:
+  server:
+    retentionPeriod: 2d
+    # Added safe limits for data indexing
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"  # VictoriaMetrics needs a bit of space for heavy indexing
+  # service:
+  #   type: ClusterIP
+  #   port: 8428
+
+
+loki:
+  deploymentMode: SingleBinary
+  loki-canary:
+    enabled: false
+
+  # 1. Strip properties from the Nginx Gateway
+  gateway:
+    enabled: false
+    # replicas: 1
+    # affinity: null
+    # topologySpreadConstraints: null
+
+  # 2. Force ChunksCache to turn off its built-in anti-affinity and clustering
+  chunksCache:
+    enabled: false
+    # replicas: 1
+    # affinity: null
+    # topologySpreadConstraints: null
+    # # 💡 Explicitly disable the PodDisruptionBudget that prevents single-node scheduling
+    # podDisruptionBudget:
+    #   enabled: false
+    # resources:
+    #   requests:
+    #     cpu: "100m"
+    #     memory: "256Mi"
+    #   limits:
+    #     cpu: "500m"
+    #     memory: "512Mi"
+
+  # 3. Handle the Results Cache completely
+  resultsCache:
+    enabled: false 
+    # replicas: 0
+
+  # limits_config:
+  #   ingestion_rate_mb: 2
+  
+  loki:
+    auth_enabled: false
+    storage:
+      type: filesystem
+    schemaConfig:
+      configs:
+        - from: "2024-01-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+
+  singleBinary:
+    replicas: 1
+    # resources:
+    #   requests:
+    #     cpu: "100m"
+    #     memory: "256Mi"
+
+    #   limits:
+    #     cpu: "500m"
+    #     memory: "512Mi"
+    persistence:
+      enabled: false
+      # size: 5Gi
+    # affinity: null
+    # topologySpreadConstraints: null
+
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+
+
+tempo:
+  replicas: 1
+  # affinity: null
+  # topologySpreadConstraints: null
+  storage:
+    trace:
+      backend: local
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+
+
+alloy:
+  enabled: true
+  service:
+    # enabled: true
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  configMap:
+    content: |
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      loki.source.kubernetes "logs" {
+        targets = discovery.kubernetes.pods.targets
+        forward_to = [loki.write.default.receiver]
+      }
+
+      loki.write "default" {
+        endpoint {
+          url = "http://observability-loki:3100/loki/api/v1/push"
+        }
+      }
+
+      prometheus.scrape "metrics" {
+        targets = discovery.kubernetes.pods.targets
+        forward_to = [prometheus.remote_write.victoria.receiver]
+      }
+
+      prometheus.remote_write "victoria" {
+        endpoint {
+          url = "http://observability-victoria-metrics-single-server:8428/api/v1/write"
+        }
+      }
+
+      otelcol.receiver.otlp "traces" {
+        grpc { endpoint = "0.0.0.0:4317" }
+        http { endpoint = "0.0.0.0:4318" }
+
+        output {
+          traces = [otelcol.exporter.otlp.tempo.input]
+        }
+      }
+
+      otelcol.exporter.otlp "tempo" {
+        client {
+          endpoint = "observability-tempo.observability.svc.cluster.local:4317"
+          tls { insecure = true }
+        }
+      }
+
+
+
+  # alloy:
+  #   rbac:
+  #     create: true
+  #   configMap:
+  #     create: true
+  #     content: |
+  #       discovery.kubernetes "pods" {
+  #         role = "pod"
+  #       }
+
+  #       loki.source.kubernetes "logs" {
+  #         targets    = discovery.kubernetes.pods.targets
+  #         forward_to = [loki.write.default.receiver]
+  #       }
+
+  #       loki.write "default" {
+  #         endpoint {
+  #           url = "http://observability-loki:3100/loki/api/v1/push"
+  #         }
+  #       }
+
+  #       prometheus.scrape "metrics" {
+  #         targets    = discovery.kubernetes.pods.targets
+  #         forward_to = [prometheus.remote_write.victoria.receiver]
+  #       }
+
+  #       prometheus.remote_write "victoria" {
+  #         endpoint {
+  #           url = "http://observability-victoria-metrics-single-server:8428/api/v1/write"
+  #         }
+  #       }
+
+  #       otelcol.receiver.otlp "traces" {
+  #         grpc {
+  #           endpoint = "0.0.0.0:4317"
+  #         }
+  #         http {
+  #           endpoint = "0.0.0.0:4318"
+  #         }
+  #         output {
+  #           traces  = [otelcol.exporter.otlp.tempo.input]
+  #         }
+  #       }
+
+  #       otelcol.receiver.jaeger "jaeger_legacy" {
+  #         protocols {
+  #           thrift_http {
+  #             endpoint = "0.0.0.0:14268"
+  #           }
+  #         }
+  #         output {
+  #           traces = [otelcol.exporter.otlp.tempo.input]
+  #         }
+  #       }
+
+  #       otelcol.exporter.otlp "tempo" {
+  #         client {
+  #           endpoint = "observability-tempo.observability.svc.cluster.local:4317"
+  #           tls {
+  #             insecure = true
+  #           }
+  #         }
+  #       }
+
+
+
+
+
+
+
+# http://observability-victoria-metrics-single-server:8428
+# http://observability-loki-gateway:80  http://observability-loki:3100
+# http://observability-tempo:3100

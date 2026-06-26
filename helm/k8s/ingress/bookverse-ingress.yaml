@@ -1,0 +1,68 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bookverse-ingress
+  namespace: bookverse
+  annotations:
+    # Forces Nginx Ingress to use HTTP/1.1 for upstreams
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   proxy_http_version 1.1;
+    #   proxy_set_header Upgrade $http_upgrade;
+    #   proxy_set_header Connection "upgrade";
+spec:
+  rules:
+    # 1. Gateway Dashboard -> http://gateway.local/
+    - host: gateway.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # name: nginx-gateway-service
+                name: bookverse-nginx-gateway
+                port:
+                  number: 80
+
+    # 2. pgAdmin Dashboard -> http://pgadmin.local/
+    - host: pgadmin.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pgadmin
+                port:
+                  number: 5050
+
+
+
+    # 4. rabbitmq  -> http://rabbitmq.local/
+    - host: rabbitmq.local  
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672
+
+    # 4. mongocompass  -> http://mongocompass.local/
+    - host: mongocompass.local  
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mongo-compass-web
+                port:
+                  number: 8080
+
+
+
+
+

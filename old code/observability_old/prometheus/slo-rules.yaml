@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: bookverse-slo
+  namespace: observability
+spec:
+  groups:
+    - name: bookverse-slo
+      rules:
+        - record: job:http_success_rate:ratio_5m
+          expr: |
+            sum(rate(http_requests_total{status!~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+
+
+        # - alert: ErrorBudgetBurn
+        #   expr: job:http_success_rate:ratio_5m < 0.99
+        #   for: 5m
+        #   labels:
+        #     severity: critical
+        #   annotations:
+        #     summary: "Service is burning error budget"

@@ -1,0 +1,41 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# Plans
+*.tfplan
+*.plan
+
+# Crash logs
+crash.log
+
+# Local environments
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+**/.terraform/
+**/*.tfstate
+
+
+.terraform/
+
+
+
+
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfvars
+
+

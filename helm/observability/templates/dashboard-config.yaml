@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard
+  namespace: observability # Ensure this is in the same namespace
+  labels:
+    grafana_dashboard: "1"
+data:
+  dashboard.json: |
+    {
+      "title": "{{ .service }} Overview",
+      "panels": [
+        {
+          "title": "Request Rate",
+          "type": "timeseries"
+        },
+        {
+          "title": "Error Rate",
+          "type": "timeseries"
+        },
+        {
+          "title": "Latency P95",
+          "type": "timeseries"
+        }
+      ]
+    }

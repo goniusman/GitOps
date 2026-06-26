@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-compass-web
+  namespace: bookverse
+  labels:
+    app: mongo-compass-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-compass-web
+  template:
+    metadata:
+      labels:
+        app: mongo-compass-web
+    spec:
+      containers:
+      - name: compass-web
+        # Using the official/community web compass image
+        image: haohanyang/compass-web:latest
+        ports:
+        - containerPort: 8080
+        env:
+        # Replace with your actual Kubernetes or Atlas MongoDB URI string
+        - name: CW_MONGO_URI
+          value: "mongodb://mongodb:27017"
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-compass-web
+  namespace: bookverse
+spec:
+  # type: ClusterIP  # Change to NodePort or LoadBalancer if you need external access
+  selector:
+    app: mongo-compass-web
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

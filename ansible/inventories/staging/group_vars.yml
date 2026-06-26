@@ -1,0 +1,11 @@
+---
+environment: "staging"
+gitops_repo_branch: "staging" # ArgoCD tracks your staging branch manifests
+
+# Downscaled state requirements for Staging (saves cost)
+postgresql_architecture: "standalone" # No replication needed in staging
+rabbitmq_replica_count: 1             # Single node queue is fine for testing
+
+# Staging separate secrets
+db_password: "StagingPassword456!"
+rabbitmq_password: "StagingRabbitMQPassword456!"

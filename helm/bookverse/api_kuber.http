@@ -1,0 +1,203 @@
+GET http://gateway.local/auth/health/live HTTP/1.1
+
+###
+GET http://gateway.local/auth/health/ready HTTP/1.1
+
+### (Auth Service)
+POST http://gateway.local/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "email": "goniusman504@gmail.com",
+    "password": "Osman@#1"
+}
+
+###
+POST http://gateway.local/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "goniusman500@gmail.com",
+    "password": "Osman@#1"
+}
+
+###
+POST http://gateway.local/auth/refresh HTTP/1.1
+content-type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4Y2E4YzlhOS1mM2RkLTQ2ZDMtOWI5MC1lNDRjYTY5NTViMGMiLCJlbWFpbCI6Imdvbml1c21hbjYwMEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MTE4MTAzMSwiZXhwIjoxNzgxNzg1ODMxfQ.ylrYqekdlqUWeDq8MW19YOdPM03ehpJrcKkCRSfJjmE"
+}
+
+###
+POST http://gateway.local/auth/logout HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYzkzMWNkMy0yODQ2LTQxYjEtOGVjMy1hNGIwODZjNDUwNzkiLCJlbWFpbCI6Imdvbml1c21hbjQwMEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MDgyOTgxNCwiZXhwIjoxNzgxNDM0NjE0fQ.Mvs9758YFaD48YmtEuVJEiCNd-AkqSZGIu2F9YBl1q0
+
+
+###
+GET http://gateway.local/auth/profile HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjRjYjFlMC1kOWRiLTQ4MTItYjJlZi0xMzFlNmIzNDczYWYiLCJlbWFpbCI6Imdvbml1c21hbjEwNTAwQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgyMDIyODk3LCJleHAiOjE3ODI2Mjc2OTd9.QgYEOxWry0jV9t3n2iWHvZwdKXwNLx82hsOpZehvzEw
+
+###( BooK Service)
+# GET http://gateway.local/health/live HTTP/1.1
+# ###
+# GET http://gateway.local/health/ready HTTP/1.1
+
+###
+POST http://gateway.local/books HTTP/1.1
+content-type: application/json
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjRjYjFlMC1kOWRiLTQ4MTItYjJlZi0xMzFlNmIzNDczYWYiLCJlbWFpbCI6Imdvbml1c21hbjEwNTAwQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgyMDIyODk3LCJleHAiOjE3ODI2Mjc2OTd9.QgYEOxWry0jV9t3n2iWHvZwdKXwNLx82hsOpZehvzEw
+
+{
+    "title": "Second Book",
+    "author": "Goni",
+    "description": "Second. interesting description is here",
+    "price": 23,
+    "quantity": 40,
+    "isPublished" : false
+}
+
+####
+GET http://gateway.local/books HTTP/1.1
+
+
+###
+GET http://gateway.local/books/6a33dda3633beb4145b9bbef HTTP/1.1
+
+
+###
+PUT http://gateway.local/books/6a33dda3633beb4145b9bbef HTTP/1.1
+content-type: application/json
+
+{
+    "title": "First Book update",
+    "author": "Osman Goni",
+    "description": "Interesting description is here",
+    "price": 30,
+    "quantity": 40,
+    "isPublished" : false
+}
+
+####
+DELETE http://gateway.local/books/6a1bdebe614ce908eaa87fad HTTP/1.1
+content-type: application/json
+
+
+### (Order Service)
+POST http://gateway.local/orders HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwNjI2YjNjMC00MzVmLTQzZTMtYjdhZi1hYWJiOTBjODM1ODIiLCJlbWFpbCI6Imdvbml1c21hbjUwM0BnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MjE5OTAwNSwiZXhwIjoxNzgyODAzODA1fQ.ZG1gsB1SKUI7c5t1mDskYBKdFdIyKAI2ejr9kBEDink
+
+{
+    "userId": "eb4cb1e0-d9db-4812-b2ef-131e6b3473af",
+    "bookId": "6a3a3a6403592c3ad9c9103e",
+    "price": 345,
+    "quantity" : 2
+}
+
+####
+GET http://gateway.local/orders HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjRjYjFlMC1kOWRiLTQ4MTItYjJlZi0xMzFlNmIzNDczYWYiLCJlbWFpbCI6Imdvbml1c21hbjEwNTAwQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgyMDIyODk3LCJleHAiOjE3ODI2Mjc2OTd9.QgYEOxWry0jV9t3n2iWHvZwdKXwNLx82hsOpZehvzEw
+####
+GET http://gateway.local/orders/6a2aab67e78144ae06f8126e HTTP/1.1
+
+####
+PUT http://gateway.local/orders/6a2aac55e78144ae06f81270 HTTP/1.1
+content-type: application/json
+
+{
+    // "userId": "2",
+    // "bookId": "2",
+    "price": 33
+}
+
+####
+DELETE http://gateway.local/orders/6a1bdebe614ce908eaa87fad HTTP/1.1
+content-type: application/json
+
+
+
+### (User Service)
+POST http://gateway.local/users HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhOWRlYmIyMi02OGE0LTQ3NjUtYmExZi1lOTE0NTI5NTA0NmIiLCJlbWFpbCI6Imdvbml1c21hbjUwMEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MjMxMjQxNiwiZXhwIjoxNzgyOTE3MjE2fQ.a99RWpREfrvife6FDeYc8_gIRJM8vduRKvfZfc-gKH4
+
+{
+    "userId": "fc931cd3-2846-41b1-8ec3-a4b086c45079",
+    "bookId": "6a2aaa9c4b0cb9dba479cbcd",
+    "price": 345
+}
+
+####
+GET http://gateway.local/users HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjRjYjFlMC1kOWRiLTQ4MTItYjJlZi0xMzFlNmIzNDczYWYiLCJlbWFpbCI6Imdvbml1c21hbjEwNTAwQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgyMDIyODk3LCJleHAiOjE3ODI2Mjc2OTd9.QgYEOxWry0jV9t3n2iWHvZwdKXwNLx82hsOpZehvzEw
+
+####
+GET http://gateway.local/users/6a2aab67e78144ae06f8126e HTTP/1.1
+
+####
+PUT http://gateway.local/users/6a2aac55e78144ae06f81270 HTTP/1.1
+content-type: application/json
+
+{
+    // "userId": "2",
+    // "bookId": "2",
+    "price": 33
+}
+
+####
+DELETE http://gateway.local/users/6a1bdebe614ce908eaa87fad HTTP/1.1
+content-type: application/json
+
+
+
+### (Review Service)
+POST http://gateway.local/review HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjRjYjFlMC1kOWRiLTQ4MTItYjJlZi0xMzFlNmIzNDczYWYiLCJlbWFpbCI6Imdvbml1c21hbjEwNTAwQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgyMDIyODk3LCJleHAiOjE3ODI2Mjc2OTd9.QgYEOxWry0jV9t3n2iWHvZwdKXwNLx82hsOpZehvzEw
+
+{
+    "userId": "fc931cd3-2846-41b1-8ec3-a4b086c45079",
+    "bookId": "6a2aaa9c4b0cb9dba479cbcd",
+    "price": 345
+}
+
+####
+GET http://gateway.local/review HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjRjYjFlMC1kOWRiLTQ4MTItYjJlZi0xMzFlNmIzNDczYWYiLCJlbWFpbCI6Imdvbml1c21hbjEwNTAwQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgyMDIyODk3LCJleHAiOjE3ODI2Mjc2OTd9.QgYEOxWry0jV9t3n2iWHvZwdKXwNLx82hsOpZehvzEw
+####
+GET http://gateway.local/review/6a2aab67e78144ae06f8126e HTTP/1.1
+
+####
+PUT http://gateway.local/review/6a2aac55e78144ae06f81270 HTTP/1.1
+content-type: application/json
+
+{
+    // "userId": "2",
+    // "bookId": "2",
+    "price": 33
+}
+
+####
+DELETE http://gateway.local/review/6a1bdebe614ce908eaa87fad HTTP/1.1
+content-type: application/json
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

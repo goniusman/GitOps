@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+# kind: StatefulSet
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: bookverse
+  labels:
+    app: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4:8.9
+          ports:
+            - containerPort: 80
+          env:
+            # Change these to your preferred web dashboard login details
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: "admin@bookverse.com"
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: "AdminPass123"
+            # Tells pgAdmin where to look for pre-defined server profiles
+            - name: PGADMIN_SERVER_JSON_FILE
+              value: "/pgadmin4/servers.json"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          volumeMounts:
+            - name: servers-config
+              mountPath: /pgadmin4/servers.json
+              subPath: servers.json
+      volumes:
+        - name: servers-config
+          configMap:
+            name: pgadmin-servers-config
+
+
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  namespace: bookverse
+spec:
+  selector:
+    app: pgadmin
+  ports:
+    - protocol: TCP
+      port: 5050
+      targetPort: 80
+  type: ClusterIP
+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-servers-config
+  namespace: bookverse
+data:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+          "Name": "Bookverse - Primary (WRITE)",
+          "Group": "Bookverse Cluster",
+          "Host": "bookverse-postgresql-primary.bookverse.svc.cluster.local",
+          "Port": 5432,
+          "MaintenanceDB": "bookverse_auth",
+          "Username": "bookverse",
+          "SSLMode": "prefer"
+        },
+        "2": {
+          "Name": "Bookverse - Replicas (READ-ONLY Load Balancer)",
+          "Group": "Bookverse Cluster",
+          "Host": "bookverse-postgresql-read.bookverse.svc.cluster.local",
+          "Port": 5432,
+          "MaintenanceDB": "bookverse_auth",
+          "Username": "bookverse",
+          "SSLMode": "prefer"
+        }
+      }
+    }
+
+
+
+
+

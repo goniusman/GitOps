@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification
+  namespace: bookverse
+  labels:
+    app: notification
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+        - name: notification
+          image: notification:latest
+          imagePullPolicy: Never # Force Minikube to use your local builds
+          
+          # NO PORTS EXPOSED HERE
+          # NO READINESS/LIVENESS PROBES NEEDED
+          
+          env:
+            - name: NODE_ENV
+              value: "production"
+            # The background worker initiates the connection OUTBOUND to RabbitMQ
+            - name: RABBITMQ_URL
+              value: "amqp://guest:guest@rabbitmq:5672"
+              # value: "amqp://guest:guest@rabbitmq.bookverse.svc.cluster.local:5672"

@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: bookverse
+data:
+  NODE_ENV: "production"
+
+  # AUTH_SERVICE_URL: "http://auth:3001"
+  # BOOK_SERVICE_URL: "http://book:3002"
+  # ORDER_SERVICE_URL: "http://order:3003"
+
+  # MONGO_URL: "mongodb://mongodb:27017/bookverse_books"
+  # MONGO_URL: "mongodb://mongodb:27017/bookverse_review"
+  MONGO_HOST: "mongodb"
+
+
+
+
+
+
+  DB_MASTER_HOST: "bookverse-postgresql-primary"
+  DB_REPLICA_HOST: "bookverse-postgresql-read"
+  DB_MASTER_PORT: "5432"
+  DB_REPLICA_PORT: "5432"
+  DB_USERNAME: "bookverse"
+  DB_PASSWORD: "bookverse"
+  DB_NAME_AUTH: "bookverse_auth"
+
+
+  # DB_HOST: "postgres" # Matches the PostgreSQL internal Service name
+  # DB_PORT: "5432"
+  # DB_NAME: "bookverse_auth"
+  # POSTGRES_HOST: "postgres"
+
+
+
+
+
+
+
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+
+  JWT_ACCESS_SECRET: my-super-access-secret
+  JWT_REFRESH_SECRET: my-super-refresh-secret
+  ACCESS_TOKEN_EXPIRES: 2d
+  REFRESH_TOKEN_EXPIRES: 7d
+  JWT_SECRET: test
+
+  # gRPC (4317)
+  # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://observability-alloy.observability.svc.cluster.local:4317"
+  # HTTP (4318)
+  # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://observability-alloy.observability.svc.cluster.local:4318/v1/traces"
+  # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger.bookverse.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.istio-system.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector.istio-system.svc.cluster.local:4317"
+  # OTEL_NODE_RESOURCE_DETECTORS: "All"
+  # Filter HTTP requests by path matching expression
+  # OTEL_INSTRUMENTATION_HTTP_IGNORED_URLS: "^/health(/.*)?$,^/metrics$"
+
+
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+
+
+
+
+

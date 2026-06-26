@@ -1,0 +1,28 @@
+apiVersion: v2
+name: observability
+description: BookVerse Observability Stack
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+
+
+dependencies:
+  - name: kube-prometheus-stack
+    version: 56.6.2
+    repository: https://prometheus-community.github.io/helm-charts
+
+  - name: loki
+    version: 5.41.4
+    repository: https://grafana.github.io/helm-charts
+
+  - name: promtail
+    version: 6.16.6
+    repository: https://grafana.github.io/helm-charts
+
+  - name: grafana
+    version: 8.5.1
+    repository: https://grafana.github.io/helm-charts
+
+  - name: jaeger
+    version: 0.71.0
+    repository: https://jaegertracing.github.io/helm-charts
