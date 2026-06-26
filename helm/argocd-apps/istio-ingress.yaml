@@ -11,14 +11,7 @@ spec:
     repoURL: 'https://istio-release.storage.googleapis.com/charts'
     chart: gateway
     targetRevision: 1.22.1
-    helm:
-      values: |
-        # 🌟 Clean root-level properties accepted natively by the modern gateway chart
-        service:
-          type: NodePort
-        
-        # If you need custom labels on the pod/service, use the native 'topology' or 'labels' block if supported, 
-        # but the chart automatically injects app=istio-ingressgateway by default.
+    # 🌟 We removed the custom 'helm:' block completely to pass strict validation
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system
