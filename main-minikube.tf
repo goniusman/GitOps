@@ -169,7 +169,7 @@ resource "kubernetes_persistent_volume" "grafana_pv" {
 # apiVersion: argoproj.io/v1alpha1
 # kind: Application
 # metadata:
-#   name: root-infrastructure-stack
+#   name: Bookverse-Application
 #   namespace: argocd
 # spec:
 #   project: default
@@ -201,7 +201,7 @@ resource "kubernetes_manifest" "argocd_root_application" {
     apiVersion = "argoproj.io/v1alpha1"
     kind       = "Application"
     metadata = {
-      name      = "root-infrastructure-stack" # This is the ultimate parent app
+      name      = "bookverse-application-stack" # This is the ultimate parent app
       namespace = "argocd"
     }
     spec = {
@@ -209,7 +209,7 @@ resource "kubernetes_manifest" "argocd_root_application" {
       source = {
         repoURL        = "https://github.com/goniusman/GitOps.git"
         targetRevision = "master"
-        path           = "helm/istio/" # 👈 MUST point to the orchestrator folder
+        path           = "helm/argocd-apps/" # 👈 MUST point to the orchestrator folder
       }
       destination = {
         server    = "https://kubernetes.default.svc"
@@ -223,7 +223,7 @@ resource "kubernetes_manifest" "argocd_root_application" {
       }
     }
   }
-  depends_on = [null_resource.wait_for_argocd]
+  depends_on = [helm_release.argocd]
 }
 
 
