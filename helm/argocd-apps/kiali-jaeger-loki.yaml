@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   sources:
-    # --- LOKI (Structured Log Storage Engine) ---
+    # --- LOKI ---
     - repoURL: 'https://grafana.github.io/helm-charts'
       chart: loki-distributed
       targetRevision: 0.79.0
@@ -19,32 +19,32 @@ spec:
               ingester:
                 max_transfer_retries: 0
                 chunk_idle_period: 1h
-          # Enable local disk storage persistence
-          schemaConfig:
-            configs:
-              - from: 2020-10-24
-                store: boltdb-shipper
-                object_store: filesystem
-                schema: v11
-                index:
-                  prefix: index_
-                  period: 24h
-          storageConfig:
-            boltdb_shipper:
-              active_index_directory: /var/loki/index
-              cache_location: /var/loki/index_cache
-              resync_interval: 5m
-              shared_store: filesystem
-            filesystem:
-              directory: /var/loki/chunks
-    # --- KIALI (Istio Mesh Console Dashboard) ---
+            schemaConfig:
+              configs:
+                - from: 2020-10-24
+                  store: boltdb-shipper
+                  object_store: filesystem
+                  schema: v11
+                  index:
+                    prefix: index_
+                    period: 24h
+            storageConfig:
+              boltdb_shipper:
+                active_index_directory: /var/loki/index
+                cache_location: /var/loki/index_cache
+                resync_interval: 5m
+                shared_store: filesystem
+              filesystem:
+                directory: /var/loki/chunks
+
+    # --- KIALI ---
     - repoURL: 'https://kiali.org/helm-charts'
       chart: kiali-server
       targetRevision: 1.85.0
       helm:
         values: |
           auth:
-            strategy: anonymous # Streamlined configuration access for local environments
+            strategy: anonymous
           external_services:
             tracing:
               url: http://jaeger-query.monitoring.svc.cluster.local:16686
@@ -52,7 +52,8 @@ spec:
               url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
             grafana:
               url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
-    # --- JAEGER (Distributed OpenTracing Engine) ---
+
+    # --- JAEGER ---
     - repoURL: 'https://jaegertracing.github.io/helm-charts'
       chart: jaeger
       targetRevision: 3.1.0
@@ -64,9 +65,8 @@ spec:
             cassandra: false
           allInOne:
             enabled: true
-            # 🌟 ADD THESE TWO LINES BELOW TO FIX THE STORAGE TEMPLATE ERROR
             storage:
-              type: memory
+              type: memory     # 🌟 This prevents the template compilation failure
           collector:
             service:
               otlp:
