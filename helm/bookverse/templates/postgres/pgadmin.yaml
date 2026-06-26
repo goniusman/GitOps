@@ -79,7 +79,7 @@ data:
         "1": {
           "Name": "Bookverse - Primary (WRITE)",
           "Group": "Bookverse Cluster",
-          "Host": "postgres.bookverse.svc.cluster.local",
+          "Host": "postgres",
           "Port": 5432,
           "MaintenanceDB": "bookverse_auth",
           "Username": "bookverse",

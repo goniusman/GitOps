@@ -58,10 +58,18 @@ spec:
       targetRevision: 3.1.0
       helm:
         values: |
+          # 🌟 FORCES THE SERVICE TO BE NAMED EXACTLY "jaeger-collector"
+          nameOverride: "jaeger"
+          fullnameOverride: "jaeger"
           provisionDataStore:
             cassandra: false
           allInOne:
-            enabled: true # Uses streamlined storage memory for efficient internal local tracing
+            enabled: true
+          collector:
+            service:
+              otlp:
+                grpc:
+                  enabled: true # Ensures port 4317 is explicitly exposed
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
