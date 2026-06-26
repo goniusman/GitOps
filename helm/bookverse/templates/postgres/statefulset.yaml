@@ -4,6 +4,8 @@ metadata:
   name: postgres
   namespace: bookverse
 spec:
+  securityContext:
+      fsGroup: 999
   serviceName: postgres
   replicas: 1
   selector:
@@ -18,7 +20,8 @@ spec:
         app.kubernetes.io/part-of: bookverse
     spec:
       securityContext:
-        fsGroup: 999
+        runAsUser: 999
+        runAsGroup: 999
 
       containers:
         - name: postgres
