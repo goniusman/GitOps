@@ -4,8 +4,8 @@ metadata:
   name: notification
   namespace: {{ .Values.global.namespace }}
 spec:
-  # ports:
-  #   - port: {{ .Values.notification.service.port }}
-  #     targetPort: {{ .Values.notification.service.port }}
+  ports:
+    - port: {{ .Values.notification.service.port }}
+      targetPort: {{ .Values.notification.service.port }}
   selector:
     app: notification

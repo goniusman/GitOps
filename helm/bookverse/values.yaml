@@ -64,6 +64,8 @@ notification:
   image:
     repository: docker.io/goniusman/notification
     tag: "79de31c95cb5393c22decabe7c74c61afa7c0a59"
+  service:
+    port: 3000
 # Default values for bookverse.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
