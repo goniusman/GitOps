@@ -17,43 +17,65 @@ spec:
         app.kubernetes.io/component: microservice
         app.kubernetes.io/part-of: bookverse
     spec:
+      securityContext:
+        fsGroup: 999
+
       containers:
         - name: postgres
-          image: postgres:15-alpine
-          ports:
-            - containerPort: 5432
+          image: postgres:15
+
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+
           env:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: DB_NAME_AUTH
+
             - name: POSTGRES_USER
               valueFrom:
-                configMapKeyRef:
-                  name: app-config
+                secretKeyRef:
+                  name: app-secrets
                   key: DB_USERNAME
+
             - name: POSTGRES_PASSWORD
               valueFrom:
-                configMapKeyRef:
-                  name: app-config
+                secretKeyRef:
+                  name: app-secrets
                   key: DB_PASSWORD
-          # env:
-          #   - name: POSTGRES_DB
-          #     valueFrom:
-          #       configMapKeyRef:
-          #         name: app-config
-          #         key: DB_NAME
-          #   - name: POSTGRES_USER
-          #     valueFrom:
-          #       secretKeyRef:
-          #         name: app-secrets
-          #         key: DB_USERNAME
-          #   - name: POSTGRES_PASSWORD
-          #     valueFrom:
-          #       secretKeyRef:
-          #         name: app-secrets
-          #         key: DB_PASSWORD
+
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          startupProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER"
+            failureThreshold: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER"
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
           resources:
             requests:
               cpu: 100m
@@ -61,9 +83,11 @@ spec:
             limits:
               cpu: 500m
               memory: 1Gi
+
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
+
   volumeClaimTemplates:
     - metadata:
         name: pgdata
@@ -72,3 +96,18 @@ spec:
         resources:
           requests:
             storage: 1Gi # Fits comfortably within local minikube storage limits
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: bookverse
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+
