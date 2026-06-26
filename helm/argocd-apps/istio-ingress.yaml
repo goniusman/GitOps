@@ -13,22 +13,12 @@ spec:
     targetRevision: 1.22.1
     helm:
       values: |
-        # 🌟 NEST EVERYTHING UNDER THE GATEWAY OBJECT
-        gateway:
-          labels:
-            istio: ingressgateway
-          service:
-            type: NodePort # Optimized for Minikube
-            ports:
-              - name: status-port
-                port: 15021
-                targetPort: 15021
-              - name: http2
-                port: 80
-                targetPort: 80
-              - name: https
-                port: 443
-                targetPort: 443
+        # 🌟 Clean root-level properties accepted natively by the modern gateway chart
+        service:
+          type: NodePort
+        
+        # If you need custom labels on the pod/service, use the native 'topology' or 'labels' block if supported, 
+        # but the chart automatically injects app=istio-ingressgateway by default.
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system
