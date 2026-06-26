@@ -1,0 +1,177 @@
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: postgres-rw
+#   namespace: bookverse
+# spec:
+#   selector:
+#     app: postgres-primary
+
+#   ports:
+#     - port: 5432
+#       targetPort: 5432
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: postgres-ro
+#   namespace: bookverse
+# spec:
+#   selector:
+#     app: postgres-replica
+
+#   ports:
+#     - port: 5432
+#       targetPort: 5432
+
+# ---
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: postgres-primary
+#   namespace: bookverse
+
+# spec:
+#   serviceName: postgres-rw
+#   replicas: 1
+
+#   selector:
+#     matchLabels:
+#       app: postgres-primary
+
+#   template:
+#     metadata:
+#       labels:
+#         app: postgres-primary
+
+#     spec:
+#       containers:
+#         - name: postgres
+
+#           image: postgres:15
+
+#           ports:
+#             - containerPort: 5432
+
+#           env:
+#             - name: POSTGRES_DB
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: postgres-config
+#                   key: POSTGRES_DB
+
+#             - name: POSTGRES_USER
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: postgres-config
+#                   key: POSTGRES_USER
+
+#             - name: POSTGRES_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgres-secret
+#                   key: POSTGRES_PASSWORD
+
+#           args:
+#             - "-c"
+#             - "wal_level=replica"
+#             - "-c"
+#             - "max_wal_senders=10"
+#             - "-c"
+#             - "max_replication_slots=10"
+#             - "-c"
+#             - "hot_standby=on"
+
+#           volumeMounts:
+#             - name: pgdata
+#               mountPath: /var/lib/postgresql/data
+
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: pgdata
+
+#       spec:
+#         accessModes:
+#           - ReadWriteOnce
+
+#         storageClassName: standard
+
+#         resources:
+#           requests:
+#             storage: 5Gi
+
+# ---
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: postgres-replica
+#   namespace: bookverse
+
+# spec:
+#   serviceName: postgres-ro
+#   replicas: 2
+
+#   selector:
+#     matchLabels:
+#       app: postgres-replica
+
+#   template:
+#     metadata:
+#       labels:
+#         app: postgres-replica
+
+#     spec:
+#       containers:
+#         - name: postgres
+
+#           image: postgres:15
+
+#           env:
+#             - name: PGPASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgres-secret
+#                   key: REPLICATION_PASSWORD
+
+#           command:
+#             - bash
+#             - -c
+#             - |
+#               if [ ! -f /var/lib/postgresql/data/PG_VERSION ]; then
+#                 pg_basebackup \
+#                   -h postgres-rw \
+#                   -D /var/lib/postgresql/data \
+#                   -U replicator \
+#                   -Fp \
+#                   -Xs \
+#                   -P \
+#                   -R
+#               fi
+
+#               exec postgres
+
+#           volumeMounts:
+#             - name: pgdata
+#               mountPath: /var/lib/postgresql/data
+
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: pgdata
+
+#       spec:
+#         accessModes:
+#           - ReadWriteOnce
+
+#         storageClassName: standard
+
+#         resources:
+#           requests:
+#             storage: 5Gi
+
+
+
+
+
+
+

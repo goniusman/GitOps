@@ -79,25 +79,25 @@ data:
         "1": {
           "Name": "Bookverse - Primary (WRITE)",
           "Group": "Bookverse Cluster",
-          "Host": "bookverse-postgresql-primary.bookverse.svc.cluster.local",
-          "Port": 5432,
-          "MaintenanceDB": "bookverse_auth",
-          "Username": "bookverse",
-          "SSLMode": "prefer"
-        },
-        "2": {
-          "Name": "Bookverse - Replicas (READ-ONLY Load Balancer)",
-          "Group": "Bookverse Cluster",
-          "Host": "bookverse-postgresql-read.bookverse.svc.cluster.local",
+          "Host": "postgres.bookverse.svc.cluster.local",
           "Port": 5432,
           "MaintenanceDB": "bookverse_auth",
           "Username": "bookverse",
           "SSLMode": "prefer"
         }
+      
       }
     }
 
 
 
 
-
+  # "2": {
+  #         "Name": "Bookverse - Replicas (READ-ONLY Load Balancer)",
+  #         "Group": "Bookverse Cluster",
+  #         "Host": "bookverse-postgresql-read.bookverse.svc.cluster.local",
+  #         "Port": 5432,
+  #         "MaintenanceDB": "bookverse_auth",
+  #         "Username": "bookverse",
+  #         "SSLMode": "prefer"
+  #       }
