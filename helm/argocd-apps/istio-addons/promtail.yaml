@@ -1,0 +1,107 @@
+# =====================================================================
+# PROMTAIL: Custom Sample File (Fits inside your istio-addons folder)
+# =====================================================================
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  namespace: istio-system
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  template:
+    metadata:
+      labels:
+        app: promtail
+    spec:
+      serviceAccountName: promtail # Requires cluster log read access permissions
+      containers:
+        - name: promtail
+          image: grafana/promtail:2.9.10
+          args: ["-config.file=/etc/promtail/promtail.yaml"]
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+            requests:
+              cpu: "20m"
+              memory: "64Mi"
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log
+            - name: promtail-config
+              mountPath: /etc/promtail
+      volumes:
+        - name: logs
+          hostPath:
+            path: /var/log
+        - name: promtail-config
+          configMap:
+            name: promtail-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: promtail-config
+  namespace: istio-system
+data:
+  promtail.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+
+    positions:
+      filename: /tmp/positions.yaml
+
+    clients:
+      # Targets Istio's local sample Loki service endpoint
+      - url: http://loki.istio-system.svc.cluster.local:3100/loki/api/v1/push
+
+    scrape_configs:
+    - job_name: kubernetes-pods
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      # Only scrape pods running inside the Istio Service Mesh
+      - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status]
+        action: keep
+        regex: (.*)
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+---
+# Minimal RBAC required for Promtail to map container paths to pod names
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: promtail
+  namespace: istio-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: promtail
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: promtail
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: promtail
+subjects:
+- kind: ServiceAccount
+  name: promtail
+  namespace: istio-system
