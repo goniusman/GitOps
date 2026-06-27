@@ -14,7 +14,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi # Stores your host definition files and historical uptime logs
+      storage: 1Gi # Stores your host definition files and historical uptime logs
 
 ---
 apiVersion: apps/v1

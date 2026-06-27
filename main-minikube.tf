@@ -12,11 +12,6 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.17"
     }
-    null = {
-      source  = "hashicorp/null"
-      version = "~> 3.3"
-    }
-    # 🌟 ADD THIS:
     kubectl = {
       source  = "gavinbunney/kubectl"
       version = "~> 1.14"
@@ -24,16 +19,16 @@ terraform {
   }
 }
 
-# 1. Spin up Minikube with required specs and addons
+# 1. Spin up Minikube (Optimized for a 4-Core / 12GB RAM Host)
 resource "minikube_cluster" "my_cluster" {
-  driver       = "docker" # or hyperv for Windows
+  driver       = "docker" 
   cluster_name = "minikube"
-  cpus         = "4"
-  memory       = "12288mb"
+  cpus         = 4          # Leaves 1 core for your host OS
+  memory       = "12288mb"   # Leaves 4GB RAM for your host OS
   addons       = ["ingress", "dashboard", "metrics-server", "storage-provisioner"]
 }
 
-# Connect providers directly to the cluster attributes
+# 2. Dynamic Provider Configurations
 provider "kubernetes" {
   host                   = minikube_cluster.my_cluster.host
   client_certificate     = minikube_cluster.my_cluster.client_certificate
@@ -50,20 +45,6 @@ provider "helm" {
   }
 }
 
-# # 🌟 Configure the Kubernetes provider explicitly for manifests
-# provider "kubernetes" {
-#   config_path    = "~/.kube/config"
-#   config_context = "minikube"
-# }
-
-# # Ensure your Helm provider matches it perfectly as well
-# provider "helm" {
-#   kubernetes {
-#     config_path    = "~/.kube/config"
-#     config_context = "minikube"
-#   }
-# }
-
 provider "kubectl" {
   host                   = minikube_cluster.my_cluster.host
   client_certificate     = minikube_cluster.my_cluster.client_certificate
@@ -72,26 +53,7 @@ provider "kubectl" {
   load_config_file       = false
 }
 
-# # 🌟 CONNECT THE KUBERNETES PROVIDER DYNAMICALLY TO MINIKUBE OUTPUTS
-# provider "kubernetes" {
-#   host                   = minikube_cluster.my_cluster.host
-#   client_certificate     = base64decode(minikube_cluster.my_cluster.client_certificate)
-#   client_key             = base64decode(minikube_cluster.my_cluster.client_key)
-#   cluster_ca_certificate = base64decode(minikube_cluster.my_cluster.cluster_ca_certificate)
-# }
-
-# # 🌟 CONNECT THE HELM PROVIDER MATCHING IT PERFECTLY
-# provider "helm" {
-#   kubernetes {
-#     host                   = minikube_cluster.my_cluster.host
-#     client_certificate     = base64decode(minikube_cluster.my_cluster.client_certificate)
-#     client_key             = base64decode(minikube_cluster.my_cluster.client_key)
-#     cluster_ca_certificate = base64decode(minikube_cluster.my_cluster.cluster_ca_certificate)
-#   }
-# }
-
-
-# 2. Deploy Argo CD using Helm
+# 3. Deploy Argo CD
 resource "kubernetes_namespace" "argocd" {
   metadata { name = "argocd" }
 }
@@ -104,77 +66,7 @@ resource "helm_release" "argocd" {
   version    = "9.5.14"
 }
 
-# # --- POSTGRESQL STORAGE ---
-# resource "kubernetes_persistent_volume" "postgres_pv" {
-#   metadata { name = "postgres-pv" }
-#   spec {
-#     capacity           = { storage = "5Gi" }
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     persistent_volume_source {
-#       host_path {
-#         path = "/mnt/data/postgres"
-#       }
-#     }
-#   }
-# }
-# resource "kubernetes_persistent_volume_claim" "postgres_pvc" {
-#   metadata { name = "postgres-pvc" }
-#   spec {
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     resources { requests = { storage = "5Gi" } }
-#     volume_name        = kubernetes_persistent_volume.postgres_pv.metadata[0].name
-#   }
-# }
-# # --- MONGODB STORAGE ---
-# resource "kubernetes_persistent_volume" "mongodb_pv" {
-#   metadata { name = "mongodb-pv" }
-#   spec {
-#     capacity           = { storage = "10Gi" }
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     persistent_volume_source {
-#       host_path {
-#         path = "/mnt/data/mongodb"
-#       }
-#     }
-#   }
-# }
-# resource "kubernetes_persistent_volume_claim" "mongodb_pvc" {
-#   metadata { name = "mongodb-pvc" }
-#   spec {
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     resources { requests = { storage = "10Gi" } }
-#     volume_name        = kubernetes_persistent_volume.mongodb_pv.metadata[0].name
-#   }
-# }
-# # --- REDIS STORAGE ---
-# resource "kubernetes_persistent_volume" "redis_pv" {
-#   metadata { name = "redis-pv" }
-#   spec {
-#     capacity           = { storage = "2Gi" }
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     persistent_volume_source {
-#       host_path {
-#         path = "/mnt/data/redis"
-#       }
-#     }
-#   }
-# }
-# resource "kubernetes_persistent_volume_claim" "redis_pvc" {
-#   metadata { name = "redis-pvc" }
-#   spec {
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     resources { requests = { storage = "2Gi" } }
-#     volume_name        = kubernetes_persistent_volume.redis_pv.metadata[0].name
-#   }
-# }
-
-# --- PROMETHEUS CORE STORAGE ---
+# 4. Storage Infrastructure (Persistent Volumes)
 resource "kubernetes_persistent_volume" "prometheus_pv" {
   metadata { name = "prometheus-pv" }
   spec {
@@ -183,13 +75,12 @@ resource "kubernetes_persistent_volume" "prometheus_pv" {
     storage_class_name = "manual"
     persistent_volume_source {
       host_path {
-        path = "/mnt/data/prometheus" # Maps to your local drive data pool
+        path = "/mnt/data/prometheus"
       }
     }
   }
 }
 
-# --- GRAFANA DASHBOARD STORAGE ---
 resource "kubernetes_persistent_volume" "grafana_pv" {
   metadata { name = "grafana-pv" }
   spec {
@@ -198,82 +89,13 @@ resource "kubernetes_persistent_volume" "grafana_pv" {
     storage_class_name = "manual"
     persistent_volume_source {
       host_path {
-        path = "/mnt/data/grafana" # Maps to your local drive data pool
+        path = "/mnt/data/grafana"
       }
     }
   }
 }
 
-
-# # 3. Bootstrap Application Infrastructure using Native PowerShell local-exec
-# resource "null_resource" "bootstrap_argocd_apps" {
-#   depends_on = [helm_release.argocd]
-
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       $manifest = @"
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: Bookverse-Application
-#   namespace: argocd
-# spec:
-#   project: default
-#   source:
-#     repoURL: 'https://github.com/goniusman/GitOps.git'
-#     targetRevision: master
-#     path: helm/bookverse
-#   destination:
-#     server: 'https://kubernetes.default.svc'
-#     namespace: bookverse
-#   syncPolicy:
-#     automated:
-#       prune: true
-#       selfHeal: true
-#     syncOptions:
-#       - CreateNamespace=true
-# "@
-#       $manifest | kubectl apply -f -
-#     EOT
-#     interpreter = ["PowerShell", "-Command"]
-#   }
-# }
-
-
-
-# 🌟 KEEP ONLY THIS SINGLE ROOT CONSOLE IN TERRAFORM
-# resource "kubernetes_manifest" "argocd_root_application" {
-#   manifest = {
-#     apiVersion = "argoproj.io/v1alpha1"
-#     kind       = "Application"
-#     metadata = {
-#       name      = "bookverse-application-stack" # This is the ultimate parent app
-#       namespace = "argocd"
-#     }
-#     spec = {
-#       project = "default"
-#       source = {
-#         repoURL        = "https://github.com/goniusman/GitOps.git"
-#         targetRevision = "master"
-#         path           = "helm/argocd-apps/" # 👈 MUST point to the orchestrator folder
-#       }
-#       destination = {
-#         server    = "https://kubernetes.default.svc"
-#         namespace = "argocd"
-#       }
-#       syncPolicy = {
-#         automated = {
-#           prune    = true
-#           selfHeal = true
-#         }
-#       }
-#     }
-#   }
-#   depends_on = [helm_release.argocd]
-# }
-
-
-# 🌟 SWAP FROM MANIFEST TO RESOURCE TO PREVENT PLAN-TIME CRASHES
+# 5. Bootstrap GitOps Application Stack via kubectl_manifest
 resource "kubectl_manifest" "argocd_root_application" {
   yaml_body = <<YAML
 apiVersion: argoproj.io/v1alpha1
@@ -298,6 +120,16 @@ YAML
 
   depends_on = [helm_release.argocd, minikube_cluster.my_cluster]
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

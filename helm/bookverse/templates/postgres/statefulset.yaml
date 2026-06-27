@@ -4,7 +4,7 @@ metadata:
   name: postgresql
   namespace: bookverse
 spec:
-  # serviceName: postgres
+  serviceName: postgresql # FIXED: Uncommented and updated to match the Service name
   replicas: 1
   selector:
     matchLabels:
@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        app: postgresql
+        app: postgresql # FIXED: Matched to the spec selector
         app.kubernetes.io/name: postgresql
         app.kubernetes.io/component: microservice
         app.kubernetes.io/part-of: bookverse
@@ -114,7 +114,7 @@ metadata:
 spec:
   clusterIP: None
   selector:
-    app: postgresql
+    app: postgresql # FIXED: Set to match the new template label
   ports:
     - port: 5432
       targetPort: 5432
