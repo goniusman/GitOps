@@ -21,8 +21,10 @@ data:
   REPLICATION_USER: replicator
 
 
-  DB_MASTER_HOST: "bookverse-postgresql-primary"
-  DB_REPLICA_HOST: "bookverse-postgresql-read"
+  DB_MASTER_HOST: "postgresql"
+  DB_REPLICA_HOST: "postgresql"
+  # DB_MASTER_HOST: "bookverse-postgresql-primary"
+  # DB_REPLICA_HOST: "bookverse-postgresql-read"
   DB_MASTER_PORT: "5432"
   DB_REPLICA_PORT: "5432"
   DB_USERNAME: "bookverse"
@@ -55,8 +57,8 @@ data:
   # HTTP (4318)
   # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://observability-alloy.observability.svc.cluster.local:4318/v1/traces"
   # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger.bookverse.svc.cluster.local:4317"
-  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.monitoring.svc.cluster.local:4317"
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector.monitoring.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-query.monitoring.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-query.monitoring.svc.cluster.local:4317"
   # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.istio-system.svc.cluster.local:4317"
   # OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector.istio-system.svc.cluster.local:4317"
   

@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres
+  name: postgresql
   namespace: bookverse
 spec:
-  serviceName: postgres
+  # serviceName: postgres
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: postgresql
   template:
     metadata:
       labels:
-        app: postgres
-        app.kubernetes.io/name: postgres
+        app: postgresql
+        app.kubernetes.io/name: postgresql
         app.kubernetes.io/component: microservice
         app.kubernetes.io/part-of: bookverse
     spec:
@@ -108,12 +108,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: postgresql
   namespace: bookverse
 spec:
   clusterIP: None
   selector:
-    app: postgres
+    app: postgresql
   ports:
     - port: 5432
       targetPort: 5432

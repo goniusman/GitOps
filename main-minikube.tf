@@ -16,13 +16,18 @@ terraform {
       source  = "hashicorp/null"
       version = "~> 3.3"
     }
+    # 🌟 ADD THIS:
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = "~> 1.14"
+    }
   }
 }
 
 # 1. Spin up Minikube with required specs and addons
 resource "minikube_cluster" "my_cluster" {
   driver       = "docker" # or hyperv for Windows
-  cluster_name = "minikube-iac"
+  cluster_name = "minikube"
   cpus         = "4"
   memory       = "8192mb"
   addons       = ["ingress", "dashboard", "metrics-server", "storage-provisioner"]
@@ -44,6 +49,47 @@ provider "helm" {
     cluster_ca_certificate = minikube_cluster.my_cluster.cluster_ca_certificate
   }
 }
+
+# # 🌟 Configure the Kubernetes provider explicitly for manifests
+# provider "kubernetes" {
+#   config_path    = "~/.kube/config"
+#   config_context = "minikube"
+# }
+
+# # Ensure your Helm provider matches it perfectly as well
+# provider "helm" {
+#   kubernetes {
+#     config_path    = "~/.kube/config"
+#     config_context = "minikube"
+#   }
+# }
+
+provider "kubectl" {
+  host                   = minikube_cluster.my_cluster.host
+  client_certificate     = minikube_cluster.my_cluster.client_certificate
+  client_key             = minikube_cluster.my_cluster.client_key
+  cluster_ca_certificate = minikube_cluster.my_cluster.cluster_ca_certificate
+  load_config_file       = false
+}
+
+# # 🌟 CONNECT THE KUBERNETES PROVIDER DYNAMICALLY TO MINIKUBE OUTPUTS
+# provider "kubernetes" {
+#   host                   = minikube_cluster.my_cluster.host
+#   client_certificate     = base64decode(minikube_cluster.my_cluster.client_certificate)
+#   client_key             = base64decode(minikube_cluster.my_cluster.client_key)
+#   cluster_ca_certificate = base64decode(minikube_cluster.my_cluster.cluster_ca_certificate)
+# }
+
+# # 🌟 CONNECT THE HELM PROVIDER MATCHING IT PERFECTLY
+# provider "helm" {
+#   kubernetes {
+#     host                   = minikube_cluster.my_cluster.host
+#     client_certificate     = base64decode(minikube_cluster.my_cluster.client_certificate)
+#     client_key             = base64decode(minikube_cluster.my_cluster.client_key)
+#     cluster_ca_certificate = base64decode(minikube_cluster.my_cluster.cluster_ca_certificate)
+#   }
+# }
+
 
 # 2. Deploy Argo CD using Helm
 resource "kubernetes_namespace" "argocd" {
@@ -132,7 +178,7 @@ resource "helm_release" "argocd" {
 resource "kubernetes_persistent_volume" "prometheus_pv" {
   metadata { name = "prometheus-pv" }
   spec {
-    capacity           = { storage = "10Gi" }
+    capacity           = { storage = "5Gi" }
     access_modes       = ["ReadWriteOnce"]
     storage_class_name = "manual"
     persistent_volume_source {
@@ -147,7 +193,7 @@ resource "kubernetes_persistent_volume" "prometheus_pv" {
 resource "kubernetes_persistent_volume" "grafana_pv" {
   metadata { name = "grafana-pv" }
   spec {
-    capacity           = { storage = "5Gi" }
+    capacity           = { storage = "3Gi" }
     access_modes       = ["ReadWriteOnce"]
     storage_class_name = "manual"
     persistent_volume_source {
@@ -196,38 +242,62 @@ resource "kubernetes_persistent_volume" "grafana_pv" {
 
 
 # 🌟 KEEP ONLY THIS SINGLE ROOT CONSOLE IN TERRAFORM
-resource "kubernetes_manifest" "argocd_root_application" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "bookverse-application-stack" # This is the ultimate parent app
-      namespace = "argocd"
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = "https://github.com/goniusman/GitOps.git"
-        targetRevision = "master"
-        path           = "helm/argocd-apps/" # 👈 MUST point to the orchestrator folder
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "argocd"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-      }
-    }
-  }
-  depends_on = [helm_release.argocd]
+# resource "kubernetes_manifest" "argocd_root_application" {
+#   manifest = {
+#     apiVersion = "argoproj.io/v1alpha1"
+#     kind       = "Application"
+#     metadata = {
+#       name      = "bookverse-application-stack" # This is the ultimate parent app
+#       namespace = "argocd"
+#     }
+#     spec = {
+#       project = "default"
+#       source = {
+#         repoURL        = "https://github.com/goniusman/GitOps.git"
+#         targetRevision = "master"
+#         path           = "helm/argocd-apps/" # 👈 MUST point to the orchestrator folder
+#       }
+#       destination = {
+#         server    = "https://kubernetes.default.svc"
+#         namespace = "argocd"
+#       }
+#       syncPolicy = {
+#         automated = {
+#           prune    = true
+#           selfHeal = true
+#         }
+#       }
+#     }
+#   }
+#   depends_on = [helm_release.argocd]
+# }
+
+
+# 🌟 SWAP FROM MANIFEST TO RESOURCE TO PREVENT PLAN-TIME CRASHES
+resource "kubectl_manifest" "argocd_root_application" {
+  yaml_body = <<YAML
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bookverse-application-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/goniusman/GitOps.git
+    targetRevision: master
+    path: helm/argocd-apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+YAML
+
+  depends_on = [helm_release.argocd, minikube_cluster.my_cluster]
 }
-
-
-
 
 
 
