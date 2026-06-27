@@ -94,11 +94,11 @@ data:
   # FILE 2: conf.d/upstreams.conf (Service Clustering)
   # ---------------------------------------------------------
   upstreams.conf: |
-    upstream auth_cluster   { server auth:3001; }
-    upstream book_cluster   { server book:3002; }
-    upstream order_cluster  { server order:3003; }
-    upstream user_cluster  { server user:3004; }
-    upstream review_cluster  { server review:3005; }
+    upstream auth_cluster   { server auth:3000; }
+    upstream book_cluster   { server book:3000; }
+    upstream order_cluster  { server order:3000; }
+    upstream user_cluster  { server user:3000; }
+    upstream review_cluster  { server review:3000; }
 
 
   # ---------------------------------------------------------
