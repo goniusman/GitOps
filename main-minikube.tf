@@ -68,6 +68,16 @@ resource "helm_release" "argocd" {
   version    = "9.5.14"
 }
 
+resource "kubernetes_namespace" "bookverse" {
+  metadata {
+    name = "bookverse"
+    
+    labels = {
+      "istio-injection" = "enabled"
+    }
+  }
+}
+
 # NOTE: Section 4 (Static Manual PVs) removed. 
 # Your low-resource manifests now rely seamlessly on Minikube's automatic 'standard' StorageClass!
 

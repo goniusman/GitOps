@@ -11,17 +11,21 @@ spec:
     repoURL: 'https://istio-release.storage.googleapis.com/charts'
     chart: gateway
     targetRevision: 1.22.1
-    # 🌟 Added Helm values to clamp the Gateway down
     helm:
       values: |
-        replicaCount: 1 # Dropped from 2 to save local cluster resources
-        
+        # Disable autoscaling so replicaCount is respected
+        autoscaling:
+          enabled: false
+
+        replicaCount: 1
+
+        # Resource limits and requests must be assigned to the container block
         resources:
           requests:
-            cpu: "50m"      # Tiny baseline footprint
+            cpu: "50m"
             memory: "64Mi"
           limits:
-            cpu: "300m"     # Keeps it from spiking your laptop's CPU
+            cpu: "300m"
             memory: "128Mi"
   destination:
     server: 'https://kubernetes.default.svc'
@@ -30,5 +34,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - SkipSchemaValidation=true
