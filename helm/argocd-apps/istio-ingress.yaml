@@ -12,7 +12,8 @@ spec:
     chart: gateway
     targetRevision: 1.22.1
     helm:
-      # Keep these parameters at the root level as required by the chart
+      # FIX: Force the Helm parameter generator itself to bypass strict schemas
+      skipSchemaValidation: true
       values: |
         autoscaling:
           enabled: false
@@ -33,6 +34,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      # This bypasses the strict schema conflict between Helm and ArgoCD
-      - SkipSchemaValidation=true
