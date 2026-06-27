@@ -96,3 +96,37 @@ YAML
 
   depends_on = [helm_release.argocd]
 }
+
+
+
+
+# # Manifest 2: Your lightweight Istio telemetry addons
+# resource "kubectl_manifest" "istio_addons_application" {
+#   yaml_body = <<YAML
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: istio-addons
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/goniusman/GitOps.git
+#     targetRevision: master
+#     path: helm/argocd-apps/istio-addons
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: istio-system
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+# YAML
+
+#   depends_on = [helm_release.argocd]
+# }
+
+
+
+
+
