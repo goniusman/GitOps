@@ -17,20 +17,30 @@ spec:
           meshID: mesh1
           multiCluster:
             clusterName: minikube-cluster
+
+        # 1. Correct placement for Istiod Control Plane resource limits
         resources:
           requests:
             cpu: "100m"   
-            memory: "128Mi"
+          # 2. Downsized default proxy footprint for injected pods
+          defaultConfig:
+            proxyMetadata: {}
+            resources:
+              requests:
+                cpu: "10m"      # Tiny CPU footprint for sidecars
+                memory: "64Mi"  # Drops sidecar memory requirements significantly
+              limits:
+                cpu: "200m"
+                memory: "128Mi"
+            memory: "256Mi"     # Dropped from 512Mi to save space locally
           limits:
             cpu: "500m"      
             memory: "512Mi"
+
         meshConfig:
           accessLogFile: /dev/stdout
           enableAutoMtls: true
-          defaultConfig:
-            proxyMetadata: {}
-              # Enables Prometheus scraping natively via telemetry annotations
-              # OUTPUT_CERTS: "/etc/istio-certs"
+          
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system

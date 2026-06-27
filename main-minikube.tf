@@ -67,33 +67,33 @@ resource "helm_release" "argocd" {
 }
 
 # 4. Storage Infrastructure (Persistent Volumes)
-resource "kubernetes_persistent_volume" "prometheus_pv" {
-  metadata { name = "prometheus-pv" }
-  spec {
-    capacity           = { storage = "5Gi" }
-    access_modes       = ["ReadWriteOnce"]
-    storage_class_name = "manual"
-    persistent_volume_source {
-      host_path {
-        path = "/mnt/data/prometheus"
-      }
-    }
-  }
-}
+# resource "kubernetes_persistent_volume" "prometheus_pv" {
+#   metadata { name = "prometheus-pv" }
+#   spec {
+#     capacity           = { storage = "5Gi" }
+#     access_modes       = ["ReadWriteOnce"]
+#     storage_class_name = "manual"
+#     persistent_volume_source {
+#       host_path {
+#         path = "/mnt/data/prometheus"
+#       }
+#     }
+#   }
+# }
 
-resource "kubernetes_persistent_volume" "grafana_pv" {
-  metadata { name = "grafana-pv" }
-  spec {
-    capacity           = { storage = "3Gi" }
-    access_modes       = ["ReadWriteOnce"]
-    storage_class_name = "manual"
-    persistent_volume_source {
-      host_path {
-        path = "/mnt/data/grafana"
-      }
-    }
-  }
-}
+# resource "kubernetes_persistent_volume" "grafana_pv" {
+#   metadata { name = "grafana-pv" }
+#   spec {
+#     capacity           = { storage = "3Gi" }
+#     access_modes       = ["ReadWriteOnce"]
+#     storage_class_name = "manual"
+#     persistent_volume_source {
+#       host_path {
+#         path = "/mnt/data/grafana"
+#       }
+#     }
+#   }
+# }
 
 # 5. Bootstrap GitOps Application Stack via kubectl_manifest
 resource "kubectl_manifest" "argocd_root_application" {

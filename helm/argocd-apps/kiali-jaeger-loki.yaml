@@ -19,23 +19,84 @@ spec:
               ingester:
                 max_transfer_retries: 0
                 chunk_idle_period: 1h
-            schemaConfig:
-              configs:
-                - from: 2020-10-24
-                  store: boltdb-shipper
-                  object_store: filesystem
-                  schema: v11
-                  index:
-                    prefix: index_
-                    period: 24h
-            storageConfig:
-              boltdb_shipper:
-                active_index_directory: /var/loki/index
-                cache_location: /var/loki/index_cache
-                resync_interval: 5m
-                shared_store: filesystem
-              filesystem:
-                directory: /var/loki/chunks
+              schemaConfig:
+                configs:
+                  - from: 2020-10-24
+                    store: boltdb-shipper
+                    object_store: filesystem
+                    schema: v11
+                    index:
+                      prefix: index_
+                      period: 24h
+              storageConfig:
+                boltdb_shipper:
+                  active_index_directory: /var/loki/index
+                  cache_location: /var/loki/index_cache
+                  resync_interval: 5m
+                  shared_store: filesystem
+                filesystem:
+                  directory: /var/loki/chunks
+
+          # 🌟 CRITICAL MINIKUBE OVERRIDES FOR LOKI-DISTRIBUTED
+          # Force all multi-pod architectures to 1 single replica
+          ingester:
+            replicas: 1
+            persistence:
+              storageClass: standard
+              size: 2Gi # Scaled down from cloud-scale defaults
+            resources:
+              limits:
+                cpu: 200m
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 128Mi
+
+          querier:
+            replicas: 1
+            resources:
+              limits:
+                cpu: 200m
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 128Mi
+
+          queryFrontend:
+            replicas: 1
+            resources:
+              limits:
+                cpu: 100m
+                memory: 128Mi
+              requests:
+                cpu: 20m
+                memory: 64Mi
+
+          distributor:
+            replicas: 1
+            resources:
+              limits:
+                cpu: 100m
+                memory: 128Mi
+              requests:
+                cpu: 20m
+                memory: 64Mi
+
+          gateway:
+            replicas: 1
+            resources:
+              limits:
+                cpu: 100m
+                memory: 128Mi
+              requests:
+                cpu: 10m
+                memory: 64Mi
+
+          # Disable components not strictly required for basic local dev
+          compactor:
+            enabled: false
+          indexGateway:
+            enabled: false
 
     # --- KIALI ---
     - repoURL: 'https://kiali.org/helm-charts'
@@ -43,26 +104,32 @@ spec:
       targetRevision: 1.85.0
       helm:
         values: |
-          # 🌟 WRAP EVERYTHING IN THIS ROOT KEY FOR MULTI-SOURCE APP VALUES
           kiali:
             auth:
               strategy: anonymous
             external_services:
               tracing:
                 url: http://jaeger-query.monitoring.svc.cluster.local:16686
-            prometheus:
-              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
-            grafana:
-              url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
+              prometheus:
+                url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+              grafana:
+                url: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
+            
+            # 🌟 Add resource boundaries to Kiali
+            resources:
+              limits:
+                cpu: 200m
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 128Mi
 
     # --- JAEGER ---
-
     - repoURL: 'https://jaegertracing.github.io/helm-charts'
       chart: jaeger
       targetRevision: 3.1.0
       helm:
         values: |
-          # 🌟 WRAP EVERYTHING IN THIS ROOT KEY FOR MULTI-SOURCE APP VALUES
           jaeger:
             nameOverride: "jaeger"
             fullnameOverride: "jaeger"
@@ -72,6 +139,14 @@ spec:
               enabled: true
               storage:
                 type: memory
+              # 🌟 Keep the Jaeger container footprint minimal since memory storage expands
+              resources:
+                limits:
+                  cpu: 300m
+                  memory: 512Mi
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
             collector:
               service:
                 otlp:

@@ -11,6 +11,18 @@ spec:
     repoURL: 'https://istio-release.storage.googleapis.com/charts'
     chart: gateway
     targetRevision: 1.22.1
+    # 🌟 Added Helm values to clamp the Gateway down
+    helm:
+      values: |
+        replicaCount: 1 # Dropped from 2 to save local cluster resources
+        
+        resources:
+          requests:
+            cpu: "50m"      # Tiny baseline footprint
+            memory: "64Mi"
+          limits:
+            cpu: "300m"     # Keeps it from spiking your laptop's CPU
+            memory: "128Mi"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system
@@ -18,6 +30,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    # 🌟 ADD THIS BLOCK TO BYPASS THE SCHEMA VALIDATION ENGINE CRASH
     syncOptions:
       - SkipSchemaValidation=true
