@@ -1,10 +1,40 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: /data/postgresql-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgdata
+  namespace: bookverse
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: postgresql-pv
+
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgresql
   namespace: bookverse
 spec:
-  serviceName: postgresql # FIXED: Uncommented and updated to match the Service name
+  serviceName: postgresql
   replicas: 1
   selector:
     matchLabels:
@@ -12,7 +42,7 @@ spec:
   template:
     metadata:
       labels:
-        app: postgresql # FIXED: Matched to the spec selector
+        app: postgresql
         app.kubernetes.io/name: postgresql
         app.kubernetes.io/component: microservice
         app.kubernetes.io/part-of: bookverse
@@ -22,7 +52,6 @@ spec:
         runAsUser: 999
         runAsGroup: 999
 
-      # This fixes the "Permission denied" error by pre-setting directory ownership
       initContainers:
         - name: fix-permissions
           image: busybox:1.36
@@ -95,15 +124,12 @@ spec:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
 
-  volumeClaimTemplates:
-    - metadata:
-        name: pgdata
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        # storageClassName: standard
-        resources:
-          requests:
-            storage: 1Gi
+      # FIXED: Replaced volumeClaimTemplates with an explicit standard volume block
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pgdata
+
 
 ---
 apiVersion: v1
@@ -114,7 +140,7 @@ metadata:
 spec:
   clusterIP: None
   selector:
-    app: postgresql # FIXED: Set to match the new template label
+    app: postgresql
   ports:
     - port: 5432
       targetPort: 5432
