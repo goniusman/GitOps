@@ -19,16 +19,17 @@ terraform {
   }
 }
 
-# 1. Spin up Minikube (Optimized for a 4-Core / 12GB RAM Host)
+# 1. Spin up Minikube (Cleaned memory format string)
 resource "minikube_cluster" "my_cluster" {
   driver       = "docker" 
   cluster_name = "minikube"
-  cpus         = 4          # Leaves 1 core for your host OS
-  memory       = "12288mb"   # Leaves 4GB RAM for your host OS
+  cpus         = 4 
+  memory       = "12288" # Clean integer string without "mb"
   addons       = ["ingress", "dashboard", "metrics-server", "storage-provisioner"]
 }
 
-# 2. Dynamic Provider Configurations
+
+# 2. Dynamic Provider Configurations (Plain text strings - no decode needed)
 provider "kubernetes" {
   host                   = minikube_cluster.my_cluster.host
   client_certificate     = minikube_cluster.my_cluster.client_certificate
@@ -56,6 +57,7 @@ provider "kubectl" {
 # 3. Deploy Argo CD
 resource "kubernetes_namespace" "argocd" {
   metadata { name = "argocd" }
+  depends_on = [minikube_cluster.my_cluster]
 }
 
 resource "helm_release" "argocd" {
@@ -66,36 +68,10 @@ resource "helm_release" "argocd" {
   version    = "9.5.14"
 }
 
-# 4. Storage Infrastructure (Persistent Volumes)
-# resource "kubernetes_persistent_volume" "prometheus_pv" {
-#   metadata { name = "prometheus-pv" }
-#   spec {
-#     capacity           = { storage = "5Gi" }
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     persistent_volume_source {
-#       host_path {
-#         path = "/mnt/data/prometheus"
-#       }
-#     }
-#   }
-# }
+# NOTE: Section 4 (Static Manual PVs) removed. 
+# Your low-resource manifests now rely seamlessly on Minikube's automatic 'standard' StorageClass!
 
-# resource "kubernetes_persistent_volume" "grafana_pv" {
-#   metadata { name = "grafana-pv" }
-#   spec {
-#     capacity           = { storage = "3Gi" }
-#     access_modes       = ["ReadWriteOnce"]
-#     storage_class_name = "manual"
-#     persistent_volume_source {
-#       host_path {
-#         path = "/mnt/data/grafana"
-#       }
-#     }
-#   }
-# }
-
-# 5. Bootstrap GitOps Application Stack via kubectl_manifest
+# 4. Bootstrap GitOps Application Stack via kubectl_manifest
 resource "kubectl_manifest" "argocd_root_application" {
   yaml_body = <<YAML
 apiVersion: argoproj.io/v1alpha1
@@ -118,18 +94,5 @@ spec:
       selfHeal: true
 YAML
 
-  depends_on = [helm_release.argocd, minikube_cluster.my_cluster]
+  depends_on = [helm_release.argocd]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -45,7 +45,7 @@ spec:
             storageSpec:
               volumeClaimTemplate:
                 spec:
-                  storageClassName: standard # Minikube's default storage class
+                  # storageClassName: standard # Minikube's default storage class
                   accessModes: ["ReadWriteOnce"]
                   resources:
                     requests:
@@ -63,7 +63,7 @@ spec:
               memory: 256Mi
           persistence:
             enabled: true
-            storageClassName: standard # Minikube's default storage class
+            # storageClassName: standard # Minikube's default storage class
             size: 1Gi # Dropped from 5Gi
           additionalDataSources:
             - name: Loki
