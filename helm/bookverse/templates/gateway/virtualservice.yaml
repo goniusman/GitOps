@@ -13,7 +13,7 @@ spec:
     - destination:
         host: argocd-server.argocd.svc.cluster.local
         port:
-          number: 80 # Route straight into the unencrypted application port
+          number: 443 # Route straight into the unencrypted application port
 ---
 # apiVersion: networking.istio.io/v1alpha3
 # kind: DestinationRule
