@@ -29,7 +29,7 @@ resource "minikube_cluster" "my_cluster" {
   driver       = "docker" # or hyperv for Windows
   cluster_name = "minikube"
   cpus         = "4"
-  memory       = "8192mb"
+  memory       = "12288mb"
   addons       = ["ingress", "dashboard", "metrics-server", "storage-provisioner"]
 }
 
