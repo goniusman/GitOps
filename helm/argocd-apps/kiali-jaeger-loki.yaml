@@ -133,13 +133,21 @@ spec:
           jaeger:
             nameOverride: "jaeger"
             fullnameOverride: "jaeger"
+            
+            # 🌟 CHANGE 1: Explicitly tell the root chart to use memory storage
+            storage:
+              type: memory
+
+            # 🌟 CHANGE 2: Fully disable the database provisioning flags
             provisionDataStore:
               cassandra: false
+              elasticsearch: false
+              kafka: false
+
             allInOne:
               enabled: true
               storage:
                 type: memory
-              # 🌟 Keep the Jaeger container footprint minimal since memory storage expands
               resources:
                 limits:
                   cpu: 300m
@@ -152,6 +160,7 @@ spec:
                 otlp:
                   grpc:
                     enabled: true
+ 
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
