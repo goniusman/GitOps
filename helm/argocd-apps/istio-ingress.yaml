@@ -13,20 +13,21 @@ spec:
     targetRevision: 1.22.1
     helm:
       values: |
-        # Disable autoscaling so replicaCount is respected
-        autoscaling:
-          enabled: false
+        gateway:
+          # Disable autoscaling so replicaCount is respected
+          autoscaling:
+            enabled: false
 
-        replicaCount: 1
+          replicaCount: 1
 
-        # Resource limits and requests must be assigned to the container block
-        resources:
-          requests:
-            cpu: "50m"
-            memory: "64Mi"
-          limits:
-            cpu: "300m"
-            memory: "128Mi"
+          # Resource limits and requests must be assigned to the container block
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "128Mi"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system
