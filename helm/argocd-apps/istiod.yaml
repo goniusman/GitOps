@@ -40,6 +40,10 @@ spec:
         meshConfig:
           accessLogFile: /dev/stdout
           enableAutoMtls: true
+          enableTracing: true
+          defaultConfig:
+            tracing:
+              sampling: 1.0
           
   destination:
     server: 'https://kubernetes.default.svc'
