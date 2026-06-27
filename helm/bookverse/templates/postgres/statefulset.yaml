@@ -9,9 +9,12 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   storageClassName: manual
+  # Explicitly allow your namespace to claim this volume
+  claimRef:
+    namespace: bookverse
+    name: pgdata
   hostPath:
     path: /data/postgresql-data
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -26,15 +29,13 @@ spec:
     requests:
       storage: 1Gi
   volumeName: postgresql-pv
-
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment # Changed to Deployment for seamless local hostPath binding
 metadata:
   name: postgresql
   namespace: bookverse
 spec:
-  serviceName: postgresql
   replicas: 1
   selector:
     matchLabels:
@@ -124,12 +125,10 @@ spec:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
 
-      # FIXED: Replaced volumeClaimTemplates with an explicit standard volume block
       volumes:
         - name: pgdata
           persistentVolumeClaim:
             claimName: pgdata
-
 
 ---
 apiVersion: v1
@@ -138,9 +137,8 @@ metadata:
   name: postgresql
   namespace: bookverse
 spec:
-  clusterIP: None
-  selector:
-    app: postgresql
   ports:
     - port: 5432
       targetPort: 5432
+  selector:
+    app: postgresql
