@@ -3,3 +3,44 @@
   # {{- else }}
   # path: {{ .path }}
   # {{- end }}
+
+
+
+  imagePullPolicy: {{ .image.pullPolicy | default "IfNotPresent" }}
+
+
+resources:
+  {{- toYaml .resources | nindent 12 }}
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+
+ports:
+  - name: http
+    containerPort: {{ .service.port }}
+
+imagePullPolicy: {{ .image.pullPolicy | default "IfNotPresent" }}
+
+resources:
+  {{- toYaml .resources | nindent 12 }}
+
+startupProbe:
+  httpGet:
+    path: /health/live
+    port: {{ .service.port }}
+  failureThreshold: 30
+  periodSeconds: 10
+
+{{- if .startup }}
+startupProbe:
+  httpGet:
+    path: /health/live
+    port: {{ .service.port }}
+  failureThreshold: 30
+  periodSeconds: 10
+{{- end }}

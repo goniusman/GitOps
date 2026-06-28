@@ -1,6 +1,5 @@
 {{- range .Values.applications }}
 {{- if .enabled }}
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,6 +11,12 @@ metadata:
     app.kubernetes.io/component: microservice
 spec:
   replicas: {{ .replicaCount }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: {{ .name | quote }}
@@ -31,7 +36,8 @@ spec:
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: Always
           ports:
-            - containerPort: {{ .service.port }}
+            - name: http
+              containerPort: {{ .service.port }}
           envFrom:
             - configMapRef:
                 name: app-config
@@ -42,8 +48,15 @@ spec:
               value: {{ .service.port | quote }}
             - name: OTEL_SERVICE_NAME
               value: {{ .name | quote }}
-              
-          {{- if .rediness }}
+          
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: {{ .service.port }}
+            failureThreshold: 30
+            periodSeconds: 10
+
+          {{- if .readiness }}
           readinessProbe:
             httpGet:
               path: /health/ready
@@ -67,9 +80,24 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
-
-
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name | quote }}
+  namespace: {{ $.Values.global.namespace | quote }}
+  labels:
+    app.kubernetes.io/name: {{ .name | quote }}
+    app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
+    app.kubernetes.io/component: microservice
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .name | quote }}
+  ports:
+    - name: http
+      port: {{ .service.port }}
+      targetPort: {{ .service.port }}
+---
 {{- end }}
 {{- end }}
-
