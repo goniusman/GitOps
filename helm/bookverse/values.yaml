@@ -6,6 +6,7 @@ applications:
     enabled: false
     rediness: false
     liveness: false
+    startupProbe: false
     replicaCount: 1
     image:
       repository: docker.io/goniusman/gateway
@@ -20,6 +21,7 @@ applications:
     enabled: true
     rediness: true
     liveness: true
+    startupProbe: true
     replicaCount: 1
     image:
       repository: docker.io/goniusman/auth
@@ -31,6 +33,7 @@ applications:
     enabled: true
     rediness: true
     liveness: true
+    startupProbe: true
     replicaCount: 1
     image:
       repository: docker.io/goniusman/book
@@ -42,6 +45,7 @@ applications:
     enabled: true
     rediness: true
     liveness: true
+    startupProbe: true
     replicaCount: 1
     image:
       repository: docker.io/goniusman/order
@@ -53,6 +57,7 @@ applications:
     enabled: true
     rediness: true
     liveness: true
+    startupProbe: true
     replicaCount: 1
     image:
       repository: docker.io/goniusman/user
@@ -64,6 +69,7 @@ applications:
     enabled: true
     rediness: true
     liveness: true
+    startupProbe: true
     replicaCount: 1
     image:
       repository: docker.io/goniusman/review
@@ -75,6 +81,7 @@ applications:
     enabled: true
     rediness: false
     liveness: false
+    startupProbe: false
     replicaCount: 1
     image:
       repository: docker.io/goniusman/notification

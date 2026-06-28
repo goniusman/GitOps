@@ -8,7 +8,7 @@ POST http://gateway.local/auth/register HTTP/1.1
 content-type: application/json
 
 {
-    "email": "goniusman504@gmail.com",
+    "email": "goniusman506@gmail.com",
     "password": "Osman@#1"
 }
 

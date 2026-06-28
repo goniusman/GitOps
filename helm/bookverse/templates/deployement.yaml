@@ -23,6 +23,9 @@ spec:
   template:
     metadata:
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: {{ .service.port }}
         proxy.istio.io/config: |
           holdApplicationUntilProxyStarts: true
       labels:
@@ -48,13 +51,15 @@ spec:
               value: {{ .service.port | quote }}
             - name: OTEL_SERVICE_NAME
               value: {{ .name | quote }}
-          
+
+          {{- if .startupProbe }}
           startupProbe:
             httpGet:
               path: /health/live
               port: {{ .service.port }}
             failureThreshold: 30
             periodSeconds: 10
+          {{- end }}
 
           {{- if .readiness }}
           readinessProbe:
@@ -73,6 +78,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 15
           {{- end }}
+
           resources:
             requests:
               cpu: 20m
