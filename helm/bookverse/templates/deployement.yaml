@@ -42,18 +42,24 @@ spec:
               value: "{{ .service.port }}"
             - name: OTEL_SERVICE_NAME
               value: {{ .name | quote }}
+              
+          {{- if .rediness }}
           readinessProbe:
             httpGet:
               path: /health/ready
               port: {{ .service.port }}
             initialDelaySeconds: 15
             periodSeconds: 10
+          {{- end }}
+          
+          {{- if .liveness }}
           livenessProbe:
             httpGet:
               path: /health/live
               port: {{ .service.port }}
             initialDelaySeconds: 30
             periodSeconds: 15
+          {{- end }}
           resources:
             requests:
               cpu: 20m
@@ -81,3 +87,14 @@ spec:
 
 {{- end }}
 {{- end }}
+
+
+
+
+
+
+
+
+
+
+

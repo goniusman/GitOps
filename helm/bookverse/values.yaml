@@ -3,20 +3,24 @@ global:
   
 applications:
 # gateway:
-# - name: gateway
-#   enabled: false
-#   replicaCount: 1
-#   image:
-#     repository: docker.io/goniusman/gateway
-#     tag: "53c7e7fcd50efc7d561b3a257cd66545d9e96134"
-#     # pullPolicy: IfNotPresent
-#   service:
-#     port: 80
-#     targetPort: 3000
-    # type: ClusterIP
+- name: gateway
+  enabled: false
+  rediness: false
+  liveness: false
+  replicaCount: 1
+  image:
+    repository: docker.io/goniusman/gateway
+    tag: "53c7e7fcd50efc7d561b3a257cd66545d9e96134"
+    # pullPolicy: IfNotPresent
+  service:
+    port: 80
+    targetPort: 3000
+    type: ClusterIP
 # auth:
 - name: auth
   enabled: true
+  rediness: true
+  liveness: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/auth
@@ -26,6 +30,8 @@ applications:
 # book:
 - name: book
   enabled: true
+  rediness: true
+  liveness: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/book
@@ -35,6 +41,8 @@ applications:
 # order:
 - name: order
   enabled: true
+  rediness: true
+  liveness: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/order
@@ -44,6 +52,8 @@ applications:
 # user:
 - name: user
   enabled: true
+  rediness: true
+  liveness: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/user
@@ -53,6 +63,8 @@ applications:
 # review:
 - name: review
   enabled: true
+  rediness: true
+  liveness: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/review
@@ -62,6 +74,8 @@ applications:
 # notification:
 - name: notification
   enabled: true
+  rediness: false
+  liveness: false
   replicaCount: 1
   image:
     repository: docker.io/goniusman/notification
