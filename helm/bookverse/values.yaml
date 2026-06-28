@@ -1,19 +1,21 @@
 global:
   namespace: bookverse
-gateway:
-  name: gateway
-  enabled: false
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/gateway
-    tag: "53c7e7fcd50efc7d561b3a257cd66545d9e96134"
-    # pullPolicy: IfNotPresent
-  service:
-    port: 80
-    targetPort: 3000
+  
+applications:
+# gateway:
+# - name: gateway
+#   enabled: false
+#   replicaCount: 1
+#   image:
+#     repository: docker.io/goniusman/gateway
+#     tag: "53c7e7fcd50efc7d561b3a257cd66545d9e96134"
+#     # pullPolicy: IfNotPresent
+#   service:
+#     port: 80
+#     targetPort: 3000
     # type: ClusterIP
-auth:
-  name: auth
+# auth:
+- name: auth
   enabled: false
   replicaCount: 1
   image:
@@ -21,8 +23,8 @@ auth:
     tag: "2000202146b151fd1040996ae1aecbb802568c1e"
   service:
     port: 3000
-book:
-  name: book
+# book:
+- name: book
   enabled: false
   replicaCount: 1
   image:
@@ -30,8 +32,8 @@ book:
     tag: "2000202146b151fd1040996ae1aecbb802568c1e"
   service:
     port: 3000
-order:
-  name: order
+# order:
+- name: order
   enabled: false
   replicaCount: 1
   image:
@@ -39,8 +41,8 @@ order:
     tag: "2000202146b151fd1040996ae1aecbb802568c1e"
   service:
     port: 3000
-user:
-  name: user
+# user:
+- name: user
   enabled: false
   replicaCount: 1
   image:
@@ -48,8 +50,8 @@ user:
     tag: "2000202146b151fd1040996ae1aecbb802568c1e"
   service:
     port: 3000
-review:
-  name: review
+# review:
+- name: review
   enabled: false
   replicaCount: 1
   image:
@@ -57,8 +59,8 @@ review:
     tag: "2000202146b151fd1040996ae1aecbb802568c1e"
   service:
     port: 3000
-notification:
-  name: notification
+# notification:
+- name: notification
   enabled: false
   replicaCount: 1
   image:
@@ -66,6 +68,7 @@ notification:
     tag: "79de31c95cb5393c22decabe7c74c61afa7c0a59"
   service:
     port: 3000
+
 # Default values for bookverse.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.

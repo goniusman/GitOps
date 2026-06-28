@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth
-  namespace: {{ .Values.global.namespace }}
+  name: { { .Values.applications.name } }
+  namespace: { { .Values.global.namespace } }
   labels:
-    app.kubernetes.io/name: auth
+    app.kubernetes.io/name: { { .Values.applications.name } }
     app.kubernetes.io/part-of: bookverse
     app.kubernetes.io/component: microservice
 spec:
-  replicas: {{ .Values.auth.replicaCount }}
+  replicas: { { .Values.applications.replicaCount } }
   selector:
     matchLabels:
-      app: auth
+      app: { { .Values.applications.name } }
   template:
     metadata:
       annotations:
         proxy.istio.io/config: |
           holdApplicationUntilProxyStarts: true
       labels:
-        app: auth
-        app.kubernetes.io/name: auth
+        app: { { .Values.applications.name } }
+        app.kubernetes.io/name: { { .Values.applications.name } }
         app.kubernetes.io/component: microservice
         app.kubernetes.io/part-of: bookverse
       # annotations:
@@ -28,18 +28,18 @@ spec:
       #   prometheus.io/port: "3001"
     spec:
       containers:
-        - name: auth
-          image: "{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag }}"
+        - name: { { .Values.applications.name } }
+          image: "{{ .Values.applications.image.repository }}:{{ .Values.applications.image.tag }}"
           imagePullPolicy: Always
           ports:
-            - containerPort: {{ .Values.auth.service.port }}
+            - containerPort: { { .Values.applications.service.port } }
           envFrom:
             # - configMapRef:
-            #     name: auth-config
+            #     name: applications-config
             - configMapRef:
                 name: app-config
             # - secretRef:
-            #     name: auth-secrets
+            #     name: applications-secrets
             - secretRef:
                 name: app-secrets
             # - secretRef:
@@ -47,23 +47,23 @@ spec:
 
           env:
             - name: "PORT"
-              value: "{{ .Values.auth.service.port }}"
+              value: "{{ .Values.applications.service.port }}"
             - name: OTEL_SERVICE_NAME
-              value: "auth"
+              value: "{ { .Values.applications.name } }"
             # - name: OTEL_EXPORTER_OTLP_ENDPOINT
             #   value: "http://jaeger.bookverse.svc.cluster.local:4317"
 
           readinessProbe:
             httpGet:
               path: /health/ready
-              port: {{ .Values.auth.service.port }}
+              port: { { .Values.applications.service.port } }
             initialDelaySeconds: 15
             periodSeconds: 10
 
           livenessProbe:
             httpGet:
               path: /health/live
-              port: {{ .Values.auth.service.port }}
+              port: { { .Values.applications.service.port } }
             initialDelaySeconds: 30
             periodSeconds: 15
 
