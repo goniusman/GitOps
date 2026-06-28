@@ -1,17 +1,17 @@
-{{ - range .Values.applications }}
-{{ - if .enabled }}
+{{- range .Values.applications }}
+{{- if .enabled }}
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "{{ .name }}"
-  namespace: "{{ .Values.global.namespace }}"
+  namespace: "{{ $.Values.global.namespace }}"
   labels:
     app.kubernetes.io/name: "{{ .name }}"
-    app.kubernetes.io/part-of: "{{ .Values.global.namespace }}"
+    app.kubernetes.io/part-of: "{{ $.Values.global.namespace }}"
     app.kubernetes.io/component: microservice
 spec:
-  replicas: "{{ .replicaCount }}"
+  replicas: {{ .replicaCount }}
   selector:
     matchLabels:
       app: "{{ .name }}"
@@ -24,11 +24,7 @@ spec:
         app: "{{ .name }}"
         app.kubernetes.io/name: "{{ .name }}"
         app.kubernetes.io/component: microservice
-        app.kubernetes.io/part-of: "{{ .Values.global.namespace }}"
-      # annotations:
-      #   prometheus.io/scrape: "true"
-      #   prometheus.io/path: "/metrics"
-      #   prometheus.io/port: "3001"
+        app.kubernetes.io/part-of: "{{ $.Values.global.namespace }}"
     spec:
       containers:
         - name: "{{ .name }}"
@@ -37,39 +33,27 @@ spec:
           ports:
             - containerPort: {{ .service.port }}
           envFrom:
-            # - configMapRef:
-            #     name: applications-config
             - configMapRef:
                 name: app-config
-            # - secretRef:
-            #     name: applications-secrets
             - secretRef:
                 name: app-secrets
-            # - secretRef:
-            #     name: bookverse-postgresql-credentials
-
           env:
             - name: "PORT"
               value: "{{ .service.port }}"
             - name: OTEL_SERVICE_NAME
               value: {{ .name | quote }}
-            # - name: OTEL_EXPORTER_OTLP_ENDPOINT
-            #   value: "http://jaeger.bookverse.svc.cluster.local:4317"
-
           readinessProbe:
             httpGet:
               path: /health/ready
               port: {{ .service.port }}
             initialDelaySeconds: 15
             periodSeconds: 10
-
           livenessProbe:
             httpGet:
               path: /health/live
               port: {{ .service.port }}
             initialDelaySeconds: 30
             periodSeconds: 15
-
           resources:
             requests:
               cpu: 20m
@@ -77,36 +61,23 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
-
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: "{{ .name }}"
-  namespace: "{{ .Values.global.namespace }}"
+  namespace: "{{ $.Values.global.namespace }}"
   labels:
     app.kubernetes.io/name: "{{ .name }}"
-    app.kubernetes.io/part-of: "{{ .Values.global.namespace }}"
+    app.kubernetes.io/part-of: "{{ $.Values.global.namespace }}"
     app.kubernetes.io/component: microservice
-  # annotations:
-  #   prometheus.io/scrape: "true"
-  #   prometheus.io/path: "/metrics"
-  #   prometheus.io/port: "3001"
 spec:
   selector:
     app.kubernetes.io/name: "{{ .name }}"
-  # type: LoadBalancer
   ports:
     - name: http
       port: {{ .service.port }}
       targetPort: {{ .service.port }}
-      # nodePort: 30000 # minikube service serviceName than will assign ip
-    # - name: metrics 
-    #   port: {{ .service.port }}
-    #   targetPort: {{ .service.targetPort }}
-  # selector:
-  #   app: applications
 
 {{- end }}
 {{- end }}
