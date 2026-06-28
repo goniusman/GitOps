@@ -4,30 +4,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{ .name }}"
-  namespace: "{{ $.Values.global.namespace }}"
+  name: {{ .name | quote }}
+  namespace: {{ $.Values.global.namespace | quote }}
   labels:
-    app.kubernetes.io/name: "{{ .name }}"
-    app.kubernetes.io/part-of: "{{ $.Values.global.namespace }}"
+    app.kubernetes.io/name: {{ .name | quote }}
+    app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
     app.kubernetes.io/component: microservice
 spec:
   replicas: {{ .replicaCount }}
   selector:
     matchLabels:
-      app: "{{ .name }}"
+      app: {{ .name | quote }}
   template:
     metadata:
       annotations:
         proxy.istio.io/config: |
           holdApplicationUntilProxyStarts: true
       labels:
-        app: "{{ .name }}"
-        app.kubernetes.io/name: "{{ .name }}"
+        app: {{ .name | quote }}
+        app.kubernetes.io/name: {{ .name | quote }}
         app.kubernetes.io/component: microservice
-        app.kubernetes.io/part-of: "{{ $.Values.global.namespace }}"
+        app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
     spec:
       containers:
-        - name: "{{ .name }}"
+        - name: {{ .name | quote }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: Always
           ports:
@@ -39,7 +39,7 @@ spec:
                 name: app-secrets
           env:
             - name: "PORT"
-              value: "{{ .service.port }}"
+              value: {{ .service.port | quote }}
             - name: OTEL_SERVICE_NAME
               value: {{ .name | quote }}
               
@@ -67,41 +67,24 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
-{{- end }}
-{{- end }}
 
 ---
-
-{{- range .Values.applications }}
-{{- if .enabled }}
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ .name }}"
-  namespace: "{{ $.Values.global.namespace }}"
+  name: {{ .name | quote }}
+  namespace: {{ $.Values.global.namespace | quote }}
   labels:
-    app.kubernetes.io/name: "{{ .name }}"
-    app.kubernetes.io/part-of: "{{ $.Values.global.namespace }}"
+    app.kubernetes.io/name: {{ .name | quote }}
+    app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
     app.kubernetes.io/component: microservice
 spec:
   selector:
-    app.kubernetes.io/name: "{{ .name }}"
+    app: {{ .name | quote }} # ◄ FIXED: Matches the template label perfectly
   ports:
-    - name: http
+    - name: http # ◄ Good: Istio reads this to treat it as HTTP mesh traffic
       port: {{ .service.port }}
       targetPort: {{ .service.port }}
 
 {{- end }}
 {{- end }}
-
-
-
-
-
-
-
-
-
-
-
