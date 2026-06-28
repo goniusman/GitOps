@@ -83,12 +83,12 @@ data:
       # 3. Standard clean metadata mapping for Grafana drops
       - source_labels: [__meta_kubernetes_namespace]
         target_label: namespace
-      # - source_labels: [__meta_kubernetes_pod_name]
-      #   target_label: pod
-      # - source_labels: [__meta_kubernetes_pod_container_name]
-      #   target_label: container
-      # - action: labelmap
-      #   regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_pod_container_name]
+        target_label: container
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
 
 ---
 # Minimal RBAC required for Promtail to map container paths to pod names
