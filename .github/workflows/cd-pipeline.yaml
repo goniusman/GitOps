@@ -68,12 +68,27 @@ jobs:
 
           echo "$SERVICES" | jq -r '.[]' | while read SERVICE
           do
-            echo "Updating: $SERVICE → $SHA"
+            echo "Updating application array item: $SERVICE → $SHA"
 
+            # This finds the item in the applications array matching the name and updates its tag
             yq e \
-              ".${SERVICE}.image.tag = \"${SHA}\"" \
+              "(.applications[] | select(.name == \"${SERVICE}\")).image.tag = \"${SHA}\"" \
               -i helm/bookverse/values.yaml
           done
+      
+      # - name: Update Image Tags # (for object in helm/bookverse/values.yaml)
+      #   run: |
+      #     SERVICES='${{ steps.payload.outputs.services }}'
+      #     SHA='${{ steps.payload.outputs.sha }}'
+
+      #     echo "$SERVICES" | jq -r '.[]' | while read SERVICE
+      #     do
+      #       echo "Updating: $SERVICE → $SHA"
+
+      #       yq e \
+      #         ".${SERVICE}.image.tag = \"${SHA}\"" \
+      #         -i helm/bookverse/values.yaml
+      #     done
 
       ############################################################
       # Validation layer (important in enterprise setups)
