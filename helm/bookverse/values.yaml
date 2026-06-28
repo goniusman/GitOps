@@ -16,7 +16,7 @@ applications:
     # type: ClusterIP
 # auth:
 - name: auth
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/auth
@@ -25,7 +25,7 @@ applications:
     port: 3000
 # book:
 - name: book
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/book
@@ -34,7 +34,7 @@ applications:
     port: 3000
 # order:
 - name: order
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/order
@@ -43,7 +43,7 @@ applications:
     port: 3000
 # user:
 - name: user
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/user
@@ -52,7 +52,7 @@ applications:
     port: 3000
 # review:
 - name: review
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/review
@@ -61,7 +61,7 @@ applications:
     port: 3000
 # notification:
 - name: notification
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: docker.io/goniusman/notification
