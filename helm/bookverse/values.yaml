@@ -1,87 +1,86 @@
 global:
   namespace: bookverse
 applications:
-# gateway:
-- name: gateway
-  enabled: false
-  rediness: false
-  liveness: false
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/gateway
-    tag: "53c7e7fcd50efc7d561b3a257cd66545d9e96134"
-    # pullPolicy: IfNotPresent
-  service:
-    port: 80
-    targetPort: 3000
-    type: ClusterIP
-# auth:
-- name: auth
-  enabled: true
-  rediness: true
-  liveness: true
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/auth
-    tag: "2000202146b151fd1040996ae1aecbb802568c1e"
-  service:
-    port: 3000
-# book:
-- name: book
-  enabled: true
-  rediness: true
-  liveness: true
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/book
-    tag: "3bddcb17f7f29cf4ee14970f926285aa8979ef0d"
-  service:
-    port: 3000
-# order:
-- name: order
-  enabled: true
-  rediness: true
-  liveness: true
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/order
-    tag: "76fde501c4656f2f258e86f866c56ad9fefc209f"
-  service:
-    port: 3000
-# user:
-- name: user
-  enabled: true
-  rediness: true
-  liveness: true
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/user
-    tag: "2000202146b151fd1040996ae1aecbb802568c1e"
-  service:
-    port: 3000
-# review:
-- name: review
-  enabled: true
-  rediness: true
-  liveness: true
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/review
-    tag: "76fde501c4656f2f258e86f866c56ad9fefc209f"
-  service:
-    port: 3000
-# notification:
-- name: notification
-  enabled: true
-  rediness: false
-  liveness: false
-  replicaCount: 1
-  image:
-    repository: docker.io/goniusman/notification
-    tag: "79de31c95cb5393c22decabe7c74c61afa7c0a59"
-  service:
-    port: 3000
-
+  # gateway:
+  - name: gateway
+    enabled: false
+    rediness: false
+    liveness: false
+    replicaCount: 1
+    image:
+      repository: docker.io/goniusman/gateway
+      tag: "53c7e7fcd50efc7d561b3a257cd66545d9e96134"
+      # pullPolicy: IfNotPresent
+    service:
+      port: 80
+      targetPort: 3000
+      type: ClusterIP
+  # auth:
+  - name: auth
+    enabled: true
+    rediness: true
+    liveness: true
+    replicaCount: 1
+    image:
+      repository: docker.io/goniusman/auth
+      tag: "15dc29ee1298371a65b8602092c43a72c089fbe2"
+    service:
+      port: 3000
+  # book:
+  - name: book
+    enabled: true
+    rediness: true
+    liveness: true
+    replicaCount: 1
+    image:
+      repository: docker.io/goniusman/book
+      tag: "3bddcb17f7f29cf4ee14970f926285aa8979ef0d"
+    service:
+      port: 3000
+  # order:
+  - name: order
+    enabled: true
+    rediness: true
+    liveness: true
+    replicaCount: 1
+    image:
+      repository: docker.io/goniusman/order
+      tag: "76fde501c4656f2f258e86f866c56ad9fefc209f"
+    service:
+      port: 3000
+  # user:
+  - name: user
+    enabled: true
+    rediness: true
+    liveness: true
+    replicaCount: 1
+    image:
+      repository: docker.io/goniusman/user
+      tag: "2000202146b151fd1040996ae1aecbb802568c1e"
+    service:
+      port: 3000
+  # review:
+  - name: review
+    enabled: true
+    rediness: true
+    liveness: true
+    replicaCount: 1
+    image:
+      repository: docker.io/goniusman/review
+      tag: "76fde501c4656f2f258e86f866c56ad9fefc209f"
+    service:
+      port: 3000
+  # notification:
+  - name: notification
+    enabled: true
+    rediness: false
+    liveness: false
+    replicaCount: 1
+    image:
+      repository: docker.io/goniusman/notification
+      tag: "79de31c95cb5393c22decabe7c74c61afa7c0a59"
+    service:
+      port: 3000
 # Default values for bookverse.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
