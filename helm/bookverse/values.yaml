@@ -1,6 +1,5 @@
 global:
   namespace: bookverse
-  
 applications:
 # gateway:
 - name: gateway
@@ -232,3 +231,6 @@ volumeMounts: []
 nodeSelector: {}
 tolerations: []
 affinity: {}
+book:
+  image:
+    tag: 3bddcb17f7f29cf4ee14970f926285aa8979ef0d
