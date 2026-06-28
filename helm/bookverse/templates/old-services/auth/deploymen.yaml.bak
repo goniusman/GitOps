@@ -1,0 +1,76 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: auth
+#   namespace: {{ .Values.global.namespace }}
+#   labels:
+#     app.kubernetes.io/name: auth
+#     app.kubernetes.io/part-of: bookverse
+#     app.kubernetes.io/component: microservice
+# spec:
+#   replicas: {{ .Values.auth.replicaCount }}
+#   selector:
+#     matchLabels:
+#       app: auth
+#   template:
+#     metadata:
+#       annotations:
+#         proxy.istio.io/config: |
+#           holdApplicationUntilProxyStarts: true
+#       labels:
+#         app: auth
+#         app.kubernetes.io/name: auth
+#         app.kubernetes.io/component: microservice
+#         app.kubernetes.io/part-of: bookverse
+#       # annotations:
+#       #   prometheus.io/scrape: "true"
+#       #   prometheus.io/path: "/metrics"
+#       #   prometheus.io/port: "3001"
+#     spec:
+#       containers:
+#         - name: auth
+#           image: "{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag }}"
+#           imagePullPolicy: Always
+#           ports:
+#             - containerPort: {{ .Values.auth.service.port }}
+#           envFrom:
+#             # - configMapRef:
+#             #     name: auth-config
+#             - configMapRef:
+#                 name: app-config
+#             # - secretRef:
+#             #     name: auth-secrets
+#             - secretRef:
+#                 name: app-secrets
+#             # - secretRef:
+#             #     name: bookverse-postgresql-credentials
+
+#           env:
+#             - name: "PORT"
+#               value: "{{ .Values.auth.service.port }}"
+#             - name: OTEL_SERVICE_NAME
+#               value: "auth"
+#             # - name: OTEL_EXPORTER_OTLP_ENDPOINT
+#             #   value: "http://jaeger.bookverse.svc.cluster.local:4317"
+
+#           readinessProbe:
+#             httpGet:
+#               path: /health/ready
+#               port: {{ .Values.auth.service.port }}
+#             initialDelaySeconds: 15
+#             periodSeconds: 10
+
+#           livenessProbe:
+#             httpGet:
+#               path: /health/live
+#               port: {{ .Values.auth.service.port }}
+#             initialDelaySeconds: 30
+#             periodSeconds: 15
+
+#           resources:
+#             requests:
+#               cpu: 20m
+#               memory: 64Mi
+#             limits:
+#               cpu: 200m
+#               memory: 256Mi
