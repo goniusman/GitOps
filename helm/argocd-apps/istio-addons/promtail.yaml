@@ -47,6 +47,8 @@ spec:
           configMap:
             name: promtail-config
 ---
+
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -62,7 +64,6 @@ data:
       filename: /tmp/positions.yaml
 
     clients:
-      # Targets Istio's local sample Loki service endpoint
       - url: http://loki.istio-system.svc.cluster.local:3100/loki/api/v1/push
 
     scrape_configs:
@@ -70,12 +71,20 @@ data:
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
-      # Only scrape pods running inside the Istio Service Mesh
-      - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status]
+      - source_labels: [__meta_kubernetes_namespace]
         action: keep
-        regex: (.*)
-      - action: labelmap
-        regex: __meta_kubernetes_pod_label_(.+)
+        regex: (bookverse|istio-system)
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_pod_container_name]
+        target_label: container
+      pipeline_stages:
+      - docker: {}
+
+
+
 ---
 # Minimal RBAC required for Promtail to map container paths to pod names
 apiVersion: v1
