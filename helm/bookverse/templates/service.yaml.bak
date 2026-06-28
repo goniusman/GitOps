@@ -1,0 +1,22 @@
+{{- range .Values.applications }}
+{{- if .enabled }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name | quote }}
+  namespace: {{ $.Values.global.namespace | quote }}
+  labels:
+    app.kubernetes.io/name: {{ .name | quote }}
+    app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
+    app.kubernetes.io/component: microservice
+spec:
+  selector:
+    app: {{ .name | quote }} # ◄ FIXED: Matches the template label perfectly
+  ports:
+    - name: http # ◄ Good: Istio reads this to treat it as HTTP mesh traffic
+      port: {{ .service.port }}
+      targetPort: {{ .service.port }}
+
+{{- end }}
+{{- end }}
