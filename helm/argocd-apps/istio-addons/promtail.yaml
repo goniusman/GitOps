@@ -17,7 +17,7 @@ spec:
       labels:
         app: promtail
     spec:
-      serviceAccountName: promtail # Requires cluster log read access permissions
+      serviceAccountName: promtail
       containers:
         - name: promtail
           image: grafana/promtail:2.9.10
@@ -37,15 +37,26 @@ spec:
           volumeMounts:
             - name: logs
               mountPath: /var/log
+            # 🔥 FIX 1: Mount the container runtime symlink targets
+            - name: varlibcontainers
+              mountPath: /var/lib/containers
+              readOnly: true
             - name: promtail-config
               mountPath: /etc/promtail
       volumes:
         - name: logs
           hostPath:
             path: /var/log
+        # 🔥 FIX 2: Map the host's actual container engine log directory
+        - name: varlibcontainers
+          hostPath:
+            path: /var/lib/containers
         - name: promtail-config
           configMap:
             name: promtail-config
+
+
+            
 ---
 apiVersion: v1
 kind: ConfigMap
