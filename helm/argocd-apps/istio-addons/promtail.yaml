@@ -35,28 +35,29 @@ spec:
               cpu: "20m"
               memory: "64Mi"
           volumeMounts:
-            - name: logs
-              mountPath: /var/log
-            # 🔥 FIX 1: Mount the container runtime symlink targets
-            - name: varlibcontainers
-              mountPath: /var/lib/containers
+            # 🔥 Mount the exact pods directory explicitly
+            - name: podlogs
+              mountPath: /var/log/pods
+              readOnly: true
+            # 🔥 Universal fallback mount for Docker-based engines
+            - name: dockercontainers
+              mountPath: /var/lib/docker/containers
               readOnly: true
             - name: promtail-config
               mountPath: /etc/promtail
       volumes:
-        - name: logs
+        - name: podlogs
           hostPath:
-            path: /var/log
-        # 🔥 FIX 2: Map the host's actual container engine log directory
-        - name: varlibcontainers
+            path: /var/log/pods
+        - name: dockercontainers
           hostPath:
-            path: /var/lib/containers
+            path: /var/lib/docker/containers
         - name: promtail-config
           configMap:
             name: promtail-config
 
 
-            
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -87,7 +88,7 @@ data:
 
       # 2. Universal K8s log directory map (Works perfectly in Minikube, Kind, & Cloud K8s)
       - target_label: __path__
-        replacement: /var/log/pods/*/*/*.log
+        replacement: /var/log/pods/**/*.log
 
       # 3. Clean up the tags so they map elegantly to Grafana filters
       - source_labels: [__meta_kubernetes_namespace]
