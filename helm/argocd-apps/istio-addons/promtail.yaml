@@ -69,18 +69,16 @@ data:
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
-      # 1. Keep only pods running inside the Istio Service Mesh
-      - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status]
+      # 1. Keep ONLY pods in your desired namespaces
+      - source_labels: [__meta_kubernetes_namespace]
         action: keep
         regex: (bookverse|istio-system)
 
-      # 2. 🔥 CRITICAL FIX: Explicitly build the file path for Minikube logs
-      - source_labels: [__meta_kubernetes_pod_uid, __meta_kubernetes_pod_container_name]
-        separator: /
-        target_label: __path__
-        replacement: /var/log/pods/*$1/*.log
+      # 2. Universal K8s log directory map (Works perfectly in Minikube, Kind, & Cloud K8s)
+      - target_label: __path__
+        replacement: /var/log/pods/*/*/*.log
 
-      # 3. Standard clean metadata mapping for Grafana drops
+      # 3. Clean up the tags so they map elegantly to Grafana filters
       - source_labels: [__meta_kubernetes_namespace]
         target_label: namespace
       - source_labels: [__meta_kubernetes_pod_name]
