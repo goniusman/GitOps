@@ -13,7 +13,14 @@ spec:
       app: redis
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "6379"
       labels:
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/component: microservice
+        app.kubernetes.io/part-of: bookverse
         app: redis
     spec:
       containers:
@@ -41,6 +48,10 @@ kind: Service
 metadata:
   name: redis
   namespace: bookverse
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "6379"
 spec:
   ports:
   - port: 6379

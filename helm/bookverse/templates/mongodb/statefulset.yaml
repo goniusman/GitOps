@@ -12,8 +12,15 @@ spec:
       app: mongodb
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "27017"
       labels:
         app: mongodb
+        app.kubernetes.io/name: mongodb
+        app.kubernetes.io/component: microservice
+        app.kubernetes.io/part-of: bookverse
     spec:
       containers:
         - name: mongodb

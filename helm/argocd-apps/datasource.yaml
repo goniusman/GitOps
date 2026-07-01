@@ -23,4 +23,5 @@ data:
     - name: Jaeger
       type: jaeger
       access: proxy
-      url: http://tracing.istio-system.svc.cluster.local:80
+      # url: http://tracing.istio-system.svc.cluster.local:80
+      url: http://tracing.istio-system.svc.cluster.local/jaeger

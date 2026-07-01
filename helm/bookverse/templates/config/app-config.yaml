@@ -21,6 +21,8 @@ data:
   REPLICATION_USER: replicator
 
 
+  # DB_MASTER_HOST: "postgresql-postgresql.db.svc.cluster.local"
+  # DB_REPLICA_HOST: "postgresql-postgresql.db.svc.cluster.local"
   DB_MASTER_HOST: "postgresql"
   DB_REPLICA_HOST: "postgresql"
   # DB_MASTER_HOST: "bookverse-postgresql-primary"
@@ -76,6 +78,10 @@ data:
   MONGO_BOOKS_URL: "mongodb://mongodb:27017/bookverse_books"
   MONGO_REVIEWS_URL: "mongodb://mongodb:27017/bookverse_review"
   MONGO_ORDERS_URL: "mongodb://mongodb:27017/bookverse_orders"
+
+  # MONGO_BOOKS_URL: "mongodb://mongodb.db.svc.cluster.local:27017/bookverse_books"
+  # MONGO_REVIEWS_URL: "mongodb://mongodb.db.svc.cluster.local:27017/bookverse_review"
+  # MONGO_ORDERS_URL: "mongodb://mongodb.db.svc.cluster.local:27017/bookverse_orders"
 
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"
