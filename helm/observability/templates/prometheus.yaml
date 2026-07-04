@@ -56,13 +56,13 @@ spec:
         app: prometheus
     spec:
       # CRITICAL: Attach the ServiceAccount providing cross-namespace visibility
-      serviceAccountName: prometheus
+      # serviceAccountName: prometheus
       containers:
       - name: prometheus
         image: prom/prometheus:latest
         args:
         - '--config.file=/etc/prometheus/prometheus.yml'
-        - '--storage.tsdb.retention.time=7d'
+        - '--storage.tsdb.retention.time=2d'
         - '--storage.tsdb.retention.size=2GB'
         ports:
         - containerPort: 9090
