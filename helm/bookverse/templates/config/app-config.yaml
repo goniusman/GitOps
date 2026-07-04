@@ -64,8 +64,8 @@ data:
   # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.istio-system.svc.cluster.local:4317"
   # OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector.istio-system.svc.cluster.local:4317"
 
-  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.monitoring.svc.cluster.local:4317"
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector.monitoring.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger.monitoring.svc.cluster.local:4317"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger.monitoring.svc.cluster.local:4317"
 
   
   # OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://tracing.istio-system.svc.cluster.local:4318/v1/traces"

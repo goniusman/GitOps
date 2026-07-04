@@ -49,7 +49,9 @@ prometheus:
 #     cpu: 500m
 #     memory: 512Mi
 
-# Grafana optimization
+# -------------------------------------------------------------------
+# GRAFANA CONFIGURATION SECTION
+# -------------------------------------------------------------------
 grafana:
   resources:
     requests:
@@ -58,6 +60,30 @@ grafana:
     limits:
       cpu: 500m
       memory: 512Mi
+
+  # Automatically provision Loki and Jaeger data sources on startup
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.monitoring.svc.cluster.local
+      version: 1
+      isDefault: false
+      jsonData:
+        derivedFields:
+          # Pro-Tip: This links your Loki logs directly to your Jaeger traces!
+          - datasourceUid: jaeger
+            matcherRegex: "traceID=(\\w+)"
+            name: TraceID
+            url: "$${__value.raw}"
+
+    - name: Jaeger
+      type: jaeger
+      uid: jaeger
+      access: proxy
+      url: http://jaeger.monitoring.svc.cluster.local:16686
+      version: 1
+      isDefault: false
 
 # Disable heavy sub-components not needed for basic local testing
 alertmanager:
