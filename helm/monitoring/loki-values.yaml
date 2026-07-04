@@ -1,0 +1,45 @@
+# loki-values.yaml
+
+# Note: deploymentMode sits outside the loki block in newer charts
+deploymentMode: Monolithic
+
+singleBinary:
+  replicas: 1
+
+loki:
+  auth_enabled: false
+  
+  commonConfig:
+    replication_factor: 1
+    
+  storage:
+    type: filesystem
+    bucketNames:
+      chunks: chunks
+      ruler: ruler
+
+# Explicitly disable all scalable microservices targets entirely 
+# so the validation engine doesn't search for an object store.
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+# Turn off the default internal MinIO clustering components
+minio:
+  enabled: false
+
+# Strip down caching and test infrastructures
+test:
+  enabled: false
+lokiCanary:
+  enabled: false
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
+gateway:
+  enabled: true

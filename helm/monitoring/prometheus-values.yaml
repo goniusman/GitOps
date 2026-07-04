@@ -1,0 +1,72 @@
+# prometheus-values.yaml
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    additionalScrapeConfigs:
+      - job_name: 'kubernetes-pods-autodiscover'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          # 1. Only scrape pods that have prometheus.io/scrape: "true"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          # 2. Handle custom metrics paths (defaults to /metrics)
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          # 3. Handle custom ports (rewrites the target address dynamically)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          # 4. Ship the pod's actual namespace as a clean label in Prometheus
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          # 5. Ship the pod's name as a clean label
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+    replicas: 1
+    retention: 2d # Keeps disk footprint tiny
+    resources:
+      requests:
+        cpu: 200m
+        memory: 500Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+# prometheus-values.yaml
+# resources:
+#   requests:
+#     cpu: 100m
+#     memory: 128Mi
+#   limits:
+#     cpu: 500m
+#     memory: 512Mi
+
+# Grafana optimization
+grafana:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Disable heavy sub-components not needed for basic local testing
+alertmanager:
+  enabled: false
+prometheus-node-exporter:
+  enabled: true
+kube-state-metrics:
+  enabled: true
+
+prometheusOperator:
+  crds:
+    enabled: false

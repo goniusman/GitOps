@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: observability-ingress
-  namespace: observability # Matches Grafana/Jaeger namespace
+  name: monitoring-ingress
+  namespace: monitoring # Matches Grafana/Jaeger namespace
 spec:
   rules:
     - host: grafana.local
@@ -12,7 +12,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: grafana
+                name: prometheus-grafana
                 port:
                   number: 80 # Reverted back to standard service port
 
@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: prometheus
+                name: prometheus-kube-prometheus-prometheus
                 port:
                   number: 9090 # Standard Prometheus port
 
@@ -36,7 +36,7 @@ spec:
               service:
                 name: jaeger
                 port:
-                  number: 80 # Reverted back to standard service port
+                  number: 14268 # Reverted back to standard service port
 
     - host: loki.local
       http:
@@ -47,7 +47,7 @@ spec:
               service:
                 name: loki
                 port:
-                  number: 80 # Reverted back to standard service port
+                  number: 3100 # Reverted back to standard service port
 
 
 

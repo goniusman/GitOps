@@ -1,0 +1,21 @@
+# jaeger-values.yaml
+allInOne:
+  enabled: true
+  storage:
+    type: memory # Keeps traces in RAM; no Elasticsearch or Cassandra required
+
+# Turn off heavy database provisioning
+provisionDataStore:
+  cassandra:
+    enabled: false
+  elasticsearch:
+    enabled: false
+
+# Resource constraints
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
