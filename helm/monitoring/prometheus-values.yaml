@@ -1,72 +1,83 @@
-# prometheus-values.yaml
+# helm/monitoring/prometheus-values.yaml
+
 prometheus:
   prometheusSpec:
+    replicas: 1
+    # 💾 SAVES DISK SPACE: Drop data retention from 2 days to 6 hours
+    retention: 6h
+    retentionSize: "1GB"
+    
+    # ⚡ SAVES CPU: Reduce resource limits so it can't hijack your machine
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 300m
+        memory: 512Mi
+
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
+    
     additionalScrapeConfigs:
       - job_name: 'kubernetes-pods-autodiscover'
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
-          # 1. Only scrape pods that have prometheus.io/scrape: "true"
           - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
             action: keep
             regex: true
-          # 2. Handle custom metrics paths (defaults to /metrics)
           - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
             action: replace
             target_label: __metrics_path__
             regex: (.+)
-          # 3. Handle custom ports (rewrites the target address dynamically)
           - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
             action: replace
             regex: ([^:]+)(?::\d+)?;(\d+)
             replacement: $1:$2
             target_label: __address__
-          # 4. Ship the pod's actual namespace as a clean label in Prometheus
           - source_labels: [__meta_kubernetes_namespace]
             action: replace
             target_label: namespace
-          # 5. Ship the pod's name as a clean label
           - source_labels: [__meta_kubernetes_pod_name]
             action: replace
             target_label: pod
-    replicas: 1
-    retention: 2d # Keeps disk footprint tiny
-    resources:
-      requests:
-        cpu: 200m
-        memory: 500Mi
-      limits:
-        cpu: 1000m
-        memory: 1Gi
-# prometheus-values.yaml
-# resources:
-#   requests:
-#     cpu: 100m
-#     memory: 128Mi
-#   limits:
-#     cpu: 500m
-#     memory: 512Mi
 
-# -------------------------------------------------------------------
-# GRAFANA CONFIGURATION SECTION
-# -------------------------------------------------------------------
+# 🚫 DISABLES HIGH-CPU CLUSTER METRICS (We only care about your NestJS app)
+kubeStateMetrics:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+# 🚫 DISABLES ALERTMANAGER (Saves a whole extra pod)
+alertmanager:
+  enabled: false
+
+prometheusOperator:
+  crds:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
 grafana:
   resources:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 128Mi
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 200m
+      memory: 256Mi
 
-  # Automatically provision Loki and Jaeger data sources on startup
   additionalDataSources:
     - name: Loki
       type: loki
       access: proxy
-      # CHANGE THIS URL from loki-gateway to loki-single-binary
       url: http://loki-single-binary.monitoring.svc.cluster.local:3100
       version: 1
       isDefault: false
@@ -76,7 +87,6 @@ grafana:
             matcherRegex: "traceID=(\\w+)"
             name: TraceID
             url: "$${__value.raw}"
-
     - name: Jaeger
       type: jaeger
       uid: jaeger
@@ -84,20 +94,6 @@ grafana:
       url: http://jaeger.monitoring.svc.cluster.local:16686
       version: 1
       isDefault: false
-
-# Disable heavy sub-components not needed for basic local testing
-alertmanager:
-  enabled: false
-prometheus-node-exporter:
-  enabled: true
-kube-state-metrics:
-  enabled: true
-
-prometheusOperator:
-  crds:
-    enabled: false
-
-
 
 
 # helm upgrade prometheus prometheus-community/kube-prometheus-stack \
