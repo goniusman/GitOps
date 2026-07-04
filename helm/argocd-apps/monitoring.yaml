@@ -1,0 +1,93 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # 1. Point ArgoCD to your GitOps repository
+    repoURL: 'https://github.com/goniusman/GitOps.git'
+    targetRevision: dev
+    # 2. Tell it which official Helm chart to pull down
+    chart: kube-prometheus-stack
+    # 3. Reference the Helm repository details for the engine
+    helm:
+      valueFiles:
+        - helm/monitoring/prometheus-values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/goniusman/GitOps.git'
+    targetRevision: dev
+    chart: loki
+    helm:
+      valueFiles:
+        - helm/monitoring/loki-values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: promtail-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/goniusman/GitOps.git'
+    targetRevision: dev
+    chart: promtail
+    helm:
+      valueFiles:
+        - helm/monitoring/promtail-values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jaeger-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/goniusman/GitOps.git'
+    targetRevision: dev
+    chart: jaeger
+    helm:
+      valueFiles:
+        - helm/monitoring/jaeger-values.yaml
+    # Note: If you don't use a custom jaeger-values.yaml file, 
+    # you can omit the helm block entirely and ArgoCD will use chart defaults.
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -96,3 +96,17 @@ kube-state-metrics:
 prometheusOperator:
   crds:
     enabled: false
+
+
+
+
+# helm upgrade prometheus prometheus-community/kube-prometheus-stack \
+#   -f prometheus-values.yaml \
+#   -n monitoring \
+#   --skip-crds
+
+
+
+
+
+
