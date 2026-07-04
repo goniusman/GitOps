@@ -30,7 +30,7 @@ metadata:
   name: prometheus-cluster-role-binding
 subjects:
   - kind: ServiceAccount
-    name: prometheus-sa
+    name: prometheus
     namespace: observability
 roleRef:
   kind: ClusterRole
@@ -55,7 +55,7 @@ spec:
         app: prometheus
     spec:
       # CRITICAL: Attach the ServiceAccount providing cross-namespace visibility
-      serviceAccountName: prometheus-sa
+      serviceAccountName: prometheus
       containers:
       - name: prometheus
         image: prom/prometheus:latest
