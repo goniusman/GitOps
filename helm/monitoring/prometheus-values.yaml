@@ -66,12 +66,12 @@ grafana:
     - name: Loki
       type: loki
       access: proxy
-      url: http://loki-gateway.monitoring.svc.cluster.local
+      # CHANGE THIS URL from loki-gateway to loki-single-binary
+      url: http://loki-single-binary.monitoring.svc.cluster.local:3100
       version: 1
       isDefault: false
       jsonData:
         derivedFields:
-          # Pro-Tip: This links your Loki logs directly to your Jaeger traces!
           - datasourceUid: jaeger
             matcherRegex: "traceID=(\\w+)"
             name: TraceID
