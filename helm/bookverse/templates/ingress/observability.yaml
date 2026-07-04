@@ -12,7 +12,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: observability-grafana
+                name: grafana
                 port:
                   number: 80 # Reverted back to standard service port
 
@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: observability-kube-prometh-prometheus
+                name: prometheus
                 port:
                   number: 9090 # Standard Prometheus port
 
@@ -34,7 +34,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: observability-jaeger-query
+                name: jaeger
                 port:
                   number: 80 # Reverted back to standard service port
 
@@ -45,7 +45,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: loki-gateway
+                name: loki
                 port:
                   number: 80 # Reverted back to standard service port
 

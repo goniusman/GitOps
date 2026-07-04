@@ -1,0 +1,65 @@
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+
+    spec:
+      automountServiceAccountToken: false
+      hostPID: true
+      hostNetwork: true
+
+      containers:
+      - name: node-exporter
+        image: prom/node-exporter:v1.9.1
+
+        args:
+        - --path.rootfs=/host
+
+        ports:
+        - containerPort: 9101
+          name: metrics
+
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          limits:
+            cpu: 50m
+            memory: 64Mi
+
+        volumeMounts:
+        - name: rootfs
+          mountPath: /host
+          readOnly: true
+          mountPropagation: HostToContainer
+
+      volumes:
+      - name: rootfs
+        hostPath:
+          path: /
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: observability
+spec:
+  selector:
+    app: node-exporter
+
+  ports:
+  - name: metrics
+    port: 9101
+    targetPort: 9101
