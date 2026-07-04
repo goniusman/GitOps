@@ -5,24 +5,28 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    # 1. Point ArgoCD to your GitOps repository
-    repoURL: 'https://github.com/goniusman/GitOps.git'
-    targetRevision: dev
-    # 2. Tell it which official Helm chart to pull down
-    chart: kube-prometheus-stack
-    # 3. Reference the Helm repository details for the engine
-    helm:
-      valueFiles:
-        - helm/monitoring/prometheus-values.yaml
+  # Tell ArgoCD to send the compiled resources into 'monitoring'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
+  # Use 'sources' (plural) to combine Helm registry with your Git values
+  sources:
+    - repoURL: 'https://prometheus-community.github.io/helm-charts'
+      chart: kube-prometheus-stack
+      targetRevision: 61.3.0
+      helm:
+        valueFiles:
+          # $dev-repo points to the root of the Git source defined below
+          - $dev-repo/helm/monitoring/prometheus-values.yaml
+    - repoURL: 'https://github.com/goniusman/GitOps.git'
+      targetRevision: dev
+      ref: dev-repo # This matches the $dev-repo prefix above
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
 ---
+# Update ONLY the loki-stack portion in your argocd/infra-apps.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -30,16 +34,23 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: 'https://github.com/goniusman/GitOps.git'
-    targetRevision: dev
-    chart: loki
-    helm:
-      valueFiles:
-        - helm/monitoring/loki-values.yaml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
+  sources:
+    - repoURL: 'https://grafana.github.io/helm-charts'
+      chart: loki
+      targetRevision: 6.6.0
+      helm:
+        valueFiles:
+          - $dev-repo/helm/monitoring/loki-values.yaml
+        # ADD THIS PARAMETERS BLOCK HERE:
+        parameters:
+          - name: loki.useTestSchema
+            value: "true"
+    - repoURL: 'https://github.com/goniusman/GitOps.git'
+      targetRevision: dev
+      ref: dev-repo
   syncPolicy:
     automated:
       prune: true
@@ -52,21 +63,20 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: 'https://github.com/goniusman/GitOps.git'
-    targetRevision: dev
-    chart: promtail
-    helm:
-      valueFiles:
-        - helm/monitoring/promtail-values.yaml
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
+  sources:
+    - repoURL: 'https://grafana.github.io/helm-charts'
+      chart: promtail
+      targetRevision: 6.16.0
+    - repoURL: 'https://github.com/goniusman/GitOps.git'
+      targetRevision: dev
+      ref: dev-repo
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -75,18 +85,20 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: 'https://github.com/goniusman/GitOps.git'
-    targetRevision: dev
-    chart: jaeger
-    helm:
-      valueFiles:
-        - helm/monitoring/jaeger-values.yaml
-    # Note: If you don't use a custom jaeger-values.yaml file, 
-    # you can omit the helm block entirely and ArgoCD will use chart defaults.
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
+  sources:
+    - repoURL: 'https://jaegertracing.github.io/helm-charts'
+      chart: jaeger
+      targetRevision: 3.3.0
+      helm:
+        valueFiles:
+          # This maps your new custom values file onto the helm install execution
+          - $dev-repo/helm/monitoring/jaeger-values.yaml
+    - repoURL: 'https://github.com/goniusman/GitOps.git'
+      targetRevision: dev
+      ref: dev-repo
   syncPolicy:
     automated:
       prune: true
