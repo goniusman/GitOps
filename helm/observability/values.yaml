@@ -142,31 +142,27 @@ promtail:
         pipeline_stages:
           - cri: {}
 
+
+
 # =====================================================================
-# TRACING CONFIG (Jaeger)
-# =====================================================================
-# =====================================================================
-# TRACING CONFIG (Jaeger)
+# TRACING CONFIG (Jaeger v2 Layout)
 # =====================================================================
 jaeger:
-  # FORCE DISABLE THE DEFAULT CASSANDRA PROVISIONER
-  provisionDataStore:
-    cassandra: false
-    elasticsearch: false
-    kafka: false
+  # The new chart uses standard deployment objects by default.
+  # Leaving it blank or setting basic resources ensures it runs 
+  # strictly as an ephemeral, in-memory tracing instance.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
 
-  # Enable the single lightweight memory-based process
-  allInOne:
-    enabled: true
-  storage:
-    type: memory
-
-  # Disable standalone microservices since we are using allInOne
-  agent:
+  # Disable extra maintenance jobs that use extra resources
+  esIndexCleaner:
     enabled: false
-  collector:
-    enabled: false
-  query:
+  spark:
     enabled: false
 
 
