@@ -17,7 +17,7 @@ POST http://gateway.local/auth/login HTTP/1.1
 content-type: application/json
 
 {
-    "email": "goniusman500@gmail.com",
+    "email": "goniusman508@gmail.com",
     "password": "Osman@#1"
 }
 
