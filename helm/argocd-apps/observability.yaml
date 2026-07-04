@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: minikube-observability-stack
+  name: observability
   namespace: argocd   # The namespace where your Argo CD instance is running
 spec:
   project: default
   source:
     # 1. Point this to your Git repository holding the code
-    repoURL: 'https://github.com/your-username/your-repo.git'
+    repoURL: 'https://github.com/goniusman/GitOps'
     targetRevision: dev
     
     # 2. Point this to the exact folder path where your Chart.yaml lives

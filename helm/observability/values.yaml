@@ -145,8 +145,28 @@ promtail:
 # =====================================================================
 # TRACING CONFIG (Jaeger)
 # =====================================================================
+# =====================================================================
+# TRACING CONFIG (Jaeger)
+# =====================================================================
 jaeger:
+  # FORCE DISABLE THE DEFAULT CASSANDRA PROVISIONER
+  provisionDataStore:
+    cassandra: false
+    elasticsearch: false
+    kafka: false
+
+  # Enable the single lightweight memory-based process
   allInOne:
-    enabled: true # FIXED: Must be true to use memory storage strategy
+    enabled: true
   storage:
     type: memory
+
+  # Disable standalone microservices since we are using allInOne
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
+
+
