@@ -4,12 +4,10 @@ metadata:
   name: prometheus
   namespace: observability
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: prometheus-cluster-role
-  # namespace: observability
 rules:
   - apiGroups: [""]
     resources:
@@ -29,8 +27,6 @@ rules:
     verbs: ["get", "list", "watch"]
   - nonResourceURLs: ["/metrics"]
     verbs: ["get"]
-
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -40,11 +36,12 @@ subjects:
   - kind: ServiceAccount
     name: prometheus
     namespace: observability
+    # FIXED: This tells the API engine not to infer the default apiGroup (.apps)
+    apiGroup: "" 
 roleRef:
   kind: ClusterRole
   name: prometheus-cluster-role
   apiGroup: rbac.authorization.k8s.io
-
 
 ---
 apiVersion: apps/v1
