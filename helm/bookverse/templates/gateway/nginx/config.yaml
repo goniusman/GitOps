@@ -156,6 +156,10 @@ data:
         # Fail-safe circuit break configuration
         proxy_next_upstream error timeout http_502 http_503;
         proxy_next_upstream_tries 2;
+
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
     }
 
     # Hidden Internal Loop for Forward Authentication Verification
@@ -194,6 +198,10 @@ data:
         proxy_next_upstream error timeout http_502 http_503;
         proxy_next_upstream_tries 2;
 
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
+
     }
 
     location /books/upload {
@@ -204,6 +212,10 @@ data:
 
         # 1. Bring back the tracing headers manually
         include /etc/nginx/tracing.conf;
+
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
     }
       
   # ---------------------------------------------------------
@@ -229,6 +241,10 @@ data:
 
         # 1. Bring back the tracing headers manually
         include /etc/nginx/tracing.conf;
+
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
 
     }
 
@@ -260,6 +276,10 @@ data:
         # 1. Bring back the tracing headers manually
         include /etc/nginx/tracing.conf;
 
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
+
     }
 
 
@@ -287,7 +307,10 @@ data:
        
         # 1. Bring back the tracing headers manually
         include /etc/nginx/tracing.conf;
-
+        
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
     }
 
 

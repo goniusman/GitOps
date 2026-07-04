@@ -15,7 +15,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/goniusman/GitOps'
-    targetRevision: master  # Changed from HEAD to your explicit branch name
+    targetRevision: dev  # Changed from HEAD to your explicit branch name
     path: helm/bookverse/  # FIXED: Points to the exact folder where Chart.yaml lives
     helm:
       valueFiles:

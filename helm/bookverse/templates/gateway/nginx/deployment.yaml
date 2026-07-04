@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bookverse-api-gateway
+  name: bookverse-nginx-gateway
   namespace: bookverse
 spec:
   replicas: 1 # Scale to multiple pods for enterprise high-availability
   selector:
     matchLabels:
-      app: api-gateway
+      app: bookverse-nginx-gateway
   template:
     metadata:
       labels:
-        app: api-gateway
+        app: bookverse-nginx-gateway
     spec:
       containers:
       - name: nginx-core

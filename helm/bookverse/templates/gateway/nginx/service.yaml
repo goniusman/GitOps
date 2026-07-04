@@ -11,4 +11,4 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: api-gateway
+    app: bookverse-nginx-gateway

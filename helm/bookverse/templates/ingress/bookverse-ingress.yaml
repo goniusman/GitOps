@@ -20,7 +20,7 @@ spec:
             backend:
               service:
                 # name: nginx-gateway-service
-                name: bookverse-nginx-gateway
+                name: bookverse-nginx-gateway-service
                 port:
                   number: 80
 
