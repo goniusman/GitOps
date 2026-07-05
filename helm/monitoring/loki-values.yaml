@@ -1,8 +1,10 @@
 # helm/monitoring/loki-values.yaml
-deploymentMode: Monolithic
+deploymentMode: SingleBinary
 
 singleBinary:
   replicas: 1
+  persistence:
+    enabled: false # Keep it stateless for local minikube testing
 
 loki:
   useTestSchema: true
