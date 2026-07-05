@@ -1,3 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+  namespace: argocd
+data:
+  server.insecure: "true"
+  
+---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:

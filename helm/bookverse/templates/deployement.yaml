@@ -86,6 +86,7 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
+      
 ---
 apiVersion: v1
 kind: Service
@@ -104,6 +105,79 @@ spec:
     - name: http
       port: {{ .service.port }}
       targetPort: {{ .service.port }}
+
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ .name | quote }}
+  namespace: {{ $.Values.global.namespace | quote }}
+spec:
+  hosts:
+    - {{ .name | quote }}
+  http:
+    - timeout: 3s
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream,5xx
+      route:
+        - destination:
+            host: {{ .name | quote }}
+            port:
+              number: {{ .service.port }}
+
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: {{ .name | quote }}
+  namespace: {{ $.Values.global.namespace | quote }}
+spec:
+  host: {{ .name | quote }}
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 2m
+      maxEjectionPercent: 100
+
 ---
 {{- end }}
 {{- end }}
+
+
+
+
+---
+### Global Security Policies (Defined once per namespace)
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: {{ $.Values.global.namespace | quote }}
+spec:
+  mtls:
+    mode: STRICT
+
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-bookverse
+  namespace: {{ $.Values.global.namespace | quote }}
+spec:
+  rules:
+  - from:
+      - source:
+          namespaces:
+            - {{ $.Values.global.namespace | quote }}
