@@ -56,7 +56,7 @@ alertmanager:
 
 prometheusOperator:
   crds:
-    enabled: false
+    enabled: true
   resources:
     requests:
       cpu: 50m

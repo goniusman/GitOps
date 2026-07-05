@@ -25,6 +25,8 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
 ---
 # Update ONLY the loki-stack portion in your argocd/infra-apps.yaml
 apiVersion: argoproj.io/v1alpha1
@@ -55,6 +57,8 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -83,6 +87,9 @@ kind: Application
 metadata:
   name: jaeger-stack
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/refresh: "hard"
+    cache-buster: "v2"
 spec:
   project: default
   destination:
