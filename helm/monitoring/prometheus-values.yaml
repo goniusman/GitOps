@@ -115,10 +115,23 @@ grafana:
       memory: 256Mi
 
   additionalDataSources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://monitoring-stack-kube-prom-prometheus:9090
+
+      isDefault: true
+    - name: Alertmanager
+      type: alertmanager
+      access: proxy
+      url: http://monitoring-stack-alertmanager:9093
+      jsonData:
+        implementation: prometheus
+
     - name: Loki
       type: loki
       access: proxy
-      url: http://loki-single-binary.monitoring.svc.cluster.local:3100
+      url: http://loki-stack:3100
       version: 1
       isDefault: false
       jsonData:
@@ -127,11 +140,12 @@ grafana:
             matcherRegex: "traceID=(\\w+)"
             name: TraceID
             url: "$${__value.raw}"
+            
     - name: Jaeger
       type: jaeger
       uid: jaeger
       access: proxy
-      url: http://jaeger-stack-query.monitoring.svc.cluster.local:16686
+      url: http://jaeger-stack-query:16686
       version: 1
       isDefault: false
 
