@@ -49,6 +49,29 @@ prometheus:
 kubeStateMetrics:
   enabled: false
 
+# 🚫 DISABLE DEFAULT CORE ALERTS (Saves CPU & prevents Operator generation lock)
+defaultRules:
+  create: false
+  rules:
+    alertmanager: false
+    etcd: false
+    configReloaders: false
+    k8s: false
+    kubeApiserver: false
+    kubeApiserverAvailability: false
+    kubeApiserverSlos: false
+    kubeLet: false
+    kubeProxy: false
+    kubePrometheusNodeAlerting: false
+    kubePrometheusGeneralAlerting: false
+    kubeScheduler: false
+    kubeStateMetrics: false
+    network: false
+    node: false
+    prometheus: false
+    prometheusOperator: false
+    time: false
+    
 nodeExporter:
   enabled: false
 
@@ -57,6 +80,10 @@ alertmanager:
   enabled: false
 
 prometheusOperator:
+  admissionWebhooks:
+    enabled: false
+    patch:
+      enabled: false
   crds:
     enabled: true
   resources:
