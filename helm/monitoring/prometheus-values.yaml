@@ -119,8 +119,8 @@ grafana:
       type: prometheus
       access: proxy
       url: http://monitoring-stack-kube-prom-prometheus:9090
-
       isDefault: true
+      
     - name: Alertmanager
       type: alertmanager
       access: proxy
@@ -140,7 +140,7 @@ grafana:
             matcherRegex: "traceID=(\\w+)"
             name: TraceID
             url: "$${__value.raw}"
-            
+
     - name: Jaeger
       type: jaeger
       uid: jaeger
