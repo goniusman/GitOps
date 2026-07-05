@@ -1,24 +1,25 @@
 # jaeger-values.yaml
+
+# 1. Clear Cassandra/Elasticsearch using flat booleans (NOT nested maps)
+provisionDataStore:
+  cassandra: false
+  elasticsearch: false
+  kafka: false
+
+# 2. Select memory mode at the ROOT level of the values file
+storage:
+  type: memory
+
+# 3. Activate All-In-One and assign resource constraints directly inside it
 allInOne:
   enabled: true
-  storage:
-    type: memory # Keeps traces in RAM; no Elasticsearch or Cassandra required
-
-# Turn off heavy database provisioning
-provisionDataStore:
-  cassandra:
-    enabled: false
-  elasticsearch:
-    enabled: false
-
-# Resource constraints
-resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
-  limits:
-    cpu: 500m
-    memory: 512Mi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 # 4. Disable separate microservice pods since All-In-One handles them natively
 agent:
