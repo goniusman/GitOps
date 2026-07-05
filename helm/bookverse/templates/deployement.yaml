@@ -169,6 +169,7 @@ spec:
   mtls:
     mode: STRICT
 
+
 ---
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
@@ -176,8 +177,27 @@ metadata:
   name: allow-bookverse
   namespace: {{ $.Values.global.namespace | quote }}
 spec:
+  action: ALLOW
   rules:
   - from:
       - source:
           namespaces:
             - {{ $.Values.global.namespace | quote }}
+            - "istio-system"
+
+# --- # for strict security, you can uncomment the following policy to deny all other traffic
+# apiVersion: security.istio.io/v1
+# kind: AuthorizationPolicy
+# metadata:
+#   name: allow-ingress-to-frontend
+#   namespace: {{ $.Values.global.namespace | quote }}
+# spec:
+#   selector:
+#     matchLabels:
+#       app: frontend-service # 👈 Replace with your actual frontend pod label
+#   action: ALLOW
+#   rules:
+#   - from:
+#     - source:
+#         namespaces: ["istio-system"]
+
