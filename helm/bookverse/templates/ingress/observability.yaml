@@ -34,9 +34,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: jaeger-stack-collector
+                name: jaeger-stack-query
                 port:
-                  number: 14268 # Reverted back to standard service port
+                  number: 16686 # Reverted back to standard service port
 
     - host: loki.local
       http:
@@ -45,9 +45,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: loki-memberlist
+                name: loki 
                 port:
-                  number: 7946 # Reverted back to standard service port
+                  number: 3100
 
 
 

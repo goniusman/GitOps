@@ -2,7 +2,7 @@
 # helm/monitoring/promtail-values.yaml
 config:
   clients:
-    - url: http://loki-single-binary.monitoring.svc.cluster.local:3100/loki/api/v1/push
+    - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
 
 # Set strict limits so log scraping doesn't steal CPU from your apps
 resources:
