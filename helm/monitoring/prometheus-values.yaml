@@ -115,11 +115,11 @@ grafana:
       memory: 256Mi
 
   additionalDataSources:
-    - name: Prometheus
-      type: prometheus
-      access: proxy
-      url: http://monitoring-stack-kube-prom-prometheus:9090
-      isDefault: true
+    # - name: Prometheus
+    #   type: prometheus
+    #   access: proxy
+    #   url: http://monitoring-stack-kube-prom-prometheus:9090
+    #   isDefault: true
       
     - name: Alertmanager
       type: alertmanager
