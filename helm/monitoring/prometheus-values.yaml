@@ -6,7 +6,9 @@ prometheus:
     # 💾 SAVES DISK SPACE: Drop data retention from 2 days to 6 hours
     retention: 6h
     retentionSize: "1GB"
-    
+    # 🛑 THE FIX: Tell Prometheus to stop searching for Alertmanager configs
+    alerting:
+      alertmanagers: []
     # ⚡ SAVES CPU: Reduce resource limits so it can't hijack your machine
     resources:
       requests:
