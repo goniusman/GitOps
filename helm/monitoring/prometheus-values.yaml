@@ -61,27 +61,27 @@ kubeStateMetrics:
   enabled: false
 
 # 🚫 DISABLE DEFAULT CORE ALERTS (Saves CPU & prevents Operator generation lock)
-defaultRules:
-  create: false
-  rules:
-    alertmanager: false
-    etcd: false
-    configReloaders: false
-    k8s: false
-    kubeApiserver: false
-    kubeApiserverAvailability: false
-    kubeApiserverSlos: false
-    kubeLet: false
-    kubeProxy: false
-    kubePrometheusNodeAlerting: false
-    kubePrometheusGeneralAlerting: false
-    kubeScheduler: false
-    kubeStateMetrics: false
-    network: false
-    node: false
-    prometheus: false
-    prometheusOperator: false
-    time: false
+# defaultRules:
+#   create: false
+#   rules:
+#     alertmanager: false
+#     etcd: false
+#     configReloaders: false
+#     k8s: false
+#     kubeApiserver: false
+#     kubeApiserverAvailability: false
+#     kubeApiserverSlos: false
+#     kubeLet: false
+#     kubeProxy: false
+#     kubePrometheusNodeAlerting: false
+#     kubePrometheusGeneralAlerting: false
+#     kubeScheduler: false
+#     kubeStateMetrics: false
+#     network: false
+#     node: false
+#     prometheus: false
+#     prometheusOperator: false
+#     time: false
 
 nodeExporter:
   enabled: false
@@ -91,10 +91,10 @@ alertmanager:
   enabled: false
 
 prometheusOperator:
-  admissionWebhooks:
-    enabled: false
-    patch:
-      enabled: false
+  # admissionWebhooks:
+  #   enabled: false
+  #   patch:
+  #     enabled: false
   crds:
     enabled: true
   resources:
@@ -118,7 +118,7 @@ grafana:
     - name: Loki
       type: loki
       access: proxy
-      url: http://loki-single-binary.monitoring.svc.cluster.local:3100
+      url: http://loki.monitoring.svc.cluster.local:3100
       version: 1
       isDefault: false
       jsonData:
@@ -131,7 +131,7 @@ grafana:
       type: jaeger
       uid: jaeger
       access: proxy
-      url: http://jaeger.monitoring.svc.cluster.local:16686
+      url: http://jaeger-stack-query.monitoring.svc.cluster.local:16686
       version: 1
       isDefault: false
 
