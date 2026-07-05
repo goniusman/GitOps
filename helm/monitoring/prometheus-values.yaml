@@ -84,17 +84,17 @@ kubeStateMetrics:
 #     time: false
 
 nodeExporter:
-  enabled: false
+  enabled: true
 
 # 🚫 DISABLES ALERTMANAGER (Saves a whole extra pod)
 alertmanager:
-  enabled: false
+  enabled: true
 
 prometheusOperator:
-  # admissionWebhooks:
-  #   enabled: false
-  #   patch:
-  #     enabled: false
+  admissionWebhooks:
+    enabled: false
+    patch:
+      enabled: false
   crds:
     enabled: true
   resources:
@@ -106,6 +106,10 @@ prometheusOperator:
       memory: 256Mi
 
 grafana:
+  enabled: true
+  grafana.ini:
+    feature_toggles:
+      enable: "appObservability,exploreMixedDatasource" # 🌟 Forces the logs/traces menus on
   resources:
     requests:
       cpu: 50m
