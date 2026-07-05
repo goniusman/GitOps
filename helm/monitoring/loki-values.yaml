@@ -5,7 +5,14 @@ singleBinary:
   replicas: 1
   persistence:
     enabled: false # Keep it stateless for local minikube testing
+  # Override security constraints to give Loki write permissions to local ephemeral zones
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
 
+    
 loki:
   useTestSchema: true
   auth_enabled: false
@@ -24,6 +31,9 @@ loki:
       type: local
       local:
         directory: /tmp/loki/rules
+  # 3. Fix the compactor module storage directory explicitly
+  compactor:
+    working_directory: /tmp/loki/compactor
 
 backend:
   replicas: 0
