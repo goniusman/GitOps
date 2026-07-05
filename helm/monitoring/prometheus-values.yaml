@@ -1,4 +1,12 @@
 # helm/monitoring/prometheus-values.yaml
+# Bypass strict TLS verification for Minikube's internal system components
+kubelet:
+  enabled: true
+  serviceMonitor:
+    https: true
+    # 🔓 THE FIX: Tell Prometheus to accept Minikube's self-signed certificates
+    tlsConfig:
+      insecureSkipVerify: true
 
 prometheus:
   prometheusSpec:
@@ -9,6 +17,9 @@ prometheus:
     # 🛑 THE FIX: Tell Prometheus to stop searching for Alertmanager configs
     alerting:
       alertmanagers: []
+    # Also ignore strict TLS for any additional runtime discovery targets
+    tlsConfig:
+      insecureSkipVerify: true
     # ⚡ SAVES CPU: Reduce resource limits so it can't hijack your machine
     resources:
       requests:
@@ -71,7 +82,7 @@ defaultRules:
     prometheus: false
     prometheusOperator: false
     time: false
-    
+
 nodeExporter:
   enabled: false
 
