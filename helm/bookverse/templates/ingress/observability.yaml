@@ -12,7 +12,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: prometheus-grafana
+                name: monitoring-stack-grafana
                 port:
                   number: 80 # Reverted back to standard service port
 
@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: prometheus-kube-prometheus-prometheus
+                name: monitoring-stack-kube-prom-prometheus
                 port:
                   number: 9090 # Standard Prometheus port
 
@@ -34,7 +34,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: jaeger
+                name: jaeger-stack-collector
                 port:
                   number: 14268 # Reverted back to standard service port
 
@@ -45,9 +45,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: loki
+                name: loki-memberlist
                 port:
-                  number: 3100 # Reverted back to standard service port
+                  number: 7946 # Reverted back to standard service port
 
 
 
