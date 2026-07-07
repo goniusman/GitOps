@@ -9,6 +9,7 @@ metadata:
     app.kubernetes.io/name: {{ .name | quote }}
     app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
     app.kubernetes.io/component: microservice
+    app.kubernetes.io/version: v1
 spec:
   replicas: {{ .replicaCount }}
   revisionHistoryLimit: 3
