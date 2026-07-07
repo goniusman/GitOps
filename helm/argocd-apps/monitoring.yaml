@@ -21,7 +21,7 @@ spec:
   sources:
     - repoURL: 'https://prometheus-community.github.io/helm-charts'
       chart: kube-prometheus-stack
-      targetRevision: 65.0.0
+      targetRevision: 87.0.0
       helm:
         valueFiles:
           # $dev-repo points to the root of the Git source defined below
