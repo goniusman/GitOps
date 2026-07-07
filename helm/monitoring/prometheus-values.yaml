@@ -33,28 +33,65 @@ prometheus:
     podMonitorSelectorNilUsesHelmValues: false
     
     additionalScrapeConfigs:
-      - job_name: 'kubernetes-pods-autodiscover'
-        kubernetes_sd_configs:
-          - role: pod
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-            action: keep
-            regex: true
-          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-            action: replace
-            target_label: __metrics_path__
-            regex: (.+)
-          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-            action: replace
-            regex: ([^:]+)(?::\d+)?;(\d+)
-            replacement: $1:$2
-            target_label: __address__
-          - source_labels: [__meta_kubernetes_namespace]
-            action: replace
-            target_label: namespace
-          - source_labels: [__meta_kubernetes_pod_name]
-            action: replace
-            target_label: pod
+    - job_name: kubernetes-pods-autodiscover
+
+      kubernetes_sd_configs:
+        - role: pod
+
+      relabel_configs:
+        # Only scrape annotated pods
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+
+        # Metrics path
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+
+        # Metrics port
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+
+        # Namespace
+        - source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+
+        # Pod Name
+        - source_labels: [__meta_kubernetes_pod_name]
+          target_label: pod
+
+        # Node Name
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          target_label: node
+
+        # Service/Application Name
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          target_label: service
+
+        # Fallback if app.kubernetes.io/name is not present
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          target_label: service
+
+        # Component
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_component]
+          target_label: component
+
+        # Version
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_version]
+          target_label: version
+
+        # Part Of
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_part_of]
+          target_label: application
+
+        # Container
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          target_label: container
 
 # 🚫 DISABLES HIGH-CPU CLUSTER METRICS (We only care about your NestJS app)
 kubeStateMetrics:
