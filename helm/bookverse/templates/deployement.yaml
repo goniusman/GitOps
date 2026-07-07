@@ -103,7 +103,7 @@ spec:
   selector:
     app: {{ .name | quote }}
   ports:
-    - name: http
+    - name: http-web
       port: {{ .service.port }}
       targetPort: {{ .service.port }}
 
@@ -186,6 +186,9 @@ spec:
           namespaces:
             - {{ $.Values.global.namespace | quote }}
             - "istio-system"
+  - to:
+    - operation:
+        ports: ["80", "8080"]
 
 # --- # for strict security, you can uncomment the following policy to deny all other traffic
 # apiVersion: security.istio.io/v1
