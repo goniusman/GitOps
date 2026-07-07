@@ -181,6 +181,7 @@ metadata:
 spec:
   action: ALLOW
   rules:
+  - {}
   # - from:
   #     - source:
   #         namespaces:
@@ -188,13 +189,13 @@ spec:
   #           - "istio-system"
   # - to:
   #   - operation:
-  #       # 👇 This dynamically matches any stringified port configured for your apps
+  #       #  This dynamically matches any stringified port configured for your apps
   #       ports:
   #       {{- range .Values.applications }}
   #       {{- if .enabled }}
   #         - {{ .service.port | quote }}
   #       {{- end }}
-  - {}
+
   # - from:
   #     - source:
   #         namespaces:
@@ -213,7 +214,7 @@ spec:
 # spec:
 #   selector:
 #     matchLabels:
-#       app: frontend-service # 👈 Replace with your actual frontend pod label
+#       app: frontend-service #  Replace with your actual frontend pod label
 #   action: ALLOW
 #   rules:
 #   - from:
