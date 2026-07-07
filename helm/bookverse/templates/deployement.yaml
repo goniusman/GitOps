@@ -168,7 +168,8 @@ metadata:
   namespace: {{ $.Values.global.namespace | quote }}
 spec:
   mtls:
-    mode: STRICT
+    mode: PERMISSIVE
+    # mode: STRICT
 
 
 ---
