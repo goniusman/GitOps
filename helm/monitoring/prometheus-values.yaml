@@ -37,12 +37,20 @@ prometheus:
 
       kubernetes_sd_configs:
         - role: pod
+          namespaces:
+            names:
+              - bookverse
 
       relabel_configs:
         # Only scrape annotated pods
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
           action: keep
           regex: true
+
+        # 2. TARGET ONLY THE BOOKVERSE NAMESPACE 
+        - source_labels: [__meta_kubernetes_namespace]
+          action: keep
+          regex: bookverse
 
         # Metrics path
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]

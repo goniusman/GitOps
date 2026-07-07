@@ -181,7 +181,20 @@ metadata:
 spec:
   action: ALLOW
   rules:
-  - {}
+  - from:
+      - source:
+          namespaces:
+            - {{ $.Values.global.namespace | quote }}
+            - "istio-system"
+  - to:
+    - operation:
+        # 👇 This dynamically matches any stringified port configured for your apps
+        ports:
+        {{- range .Values.applications }}
+        {{- if .enabled }}
+          - {{ .service.port | quote }}
+        {{- end }}
+  # - {}
   # - from:
   #     - source:
   #         namespaces:
