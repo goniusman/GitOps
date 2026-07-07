@@ -181,7 +181,18 @@ metadata:
 spec:
   action: ALLOW
   rules:
-  - {}
+  - from:
+      - source:
+          namespaces:
+            - {{ $.Values.global.namespace | quote }}
+            - "istio-system"
+  - to:
+    - operation:
+        ports: ["80", "8080", "3000", "5000", "5001", "5002", "5003", "5004", "5005", "5006", "5007", "5008", "5009"]
+
+
+---
+# - {}
   # - from:
   #     - source:
   #         namespaces:
@@ -196,14 +207,6 @@ spec:
   #         - {{ .service.port | quote }}
   #       {{- end }}
 
-  # - from:
-  #     - source:
-  #         namespaces:
-  #           - {{ $.Values.global.namespace | quote }}
-  #           - "istio-system"
-  # - to:
-  #   - operation:
-  #       ports: ["80", "8080", "3000", "5000", "5001", "5002", "5003", "5004", "5005", "5006", "5007", "5008", "5009"]
 
 # --- # for strict security, you can uncomment the following policy to deny all other traffic
 # apiVersion: security.istio.io/v1
