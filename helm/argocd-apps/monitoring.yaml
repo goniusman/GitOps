@@ -34,7 +34,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      # - ServerSideApply=true
+      - ServerSideApply=true
 ---
 # Update ONLY the loki-stack portion in your argocd/infra-apps.yaml
 apiVersion: argoproj.io/v1alpha1

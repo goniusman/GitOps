@@ -92,9 +92,9 @@ alertmanager:
 
 prometheusOperator:
   admissionWebhooks:
-    enabled: true
+    enabled: false
     patch:
-      enabled: true
+      enabled: false
   crds:
     enabled: true
   resources:
