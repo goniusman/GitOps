@@ -40,7 +40,7 @@ spec:
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: Always
           ports:
-            - name: http
+            - name: http-web
               containerPort: {{ .service.port }}
           envFrom:
             - configMapRef:
