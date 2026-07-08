@@ -27,7 +27,7 @@ spec:
           # $dev-repo points to the root of the Git source defined below
           - $dev-repo/helm/monitoring/prometheus-values.yaml
     - repoURL: 'https://github.com/goniusman/GitOps.git'
-      targetRevision: dev
+      targetRevision: main
       ref: dev-repo # This matches the $dev-repo prefix above
   syncPolicy:
     automated:
@@ -59,7 +59,7 @@ spec:
           - name: loki.useTestSchema
             value: "true"
     - repoURL: 'https://github.com/goniusman/GitOps.git'
-      targetRevision: dev
+      targetRevision: main
       ref: dev-repo
   syncPolicy:
     automated:
@@ -86,7 +86,7 @@ spec:
         valueFiles:
           - $dev-repo/helm/monitoring/promtail-values.yaml
     - repoURL: 'https://github.com/goniusman/GitOps.git'
-      targetRevision: dev
+      targetRevision: main
       ref: dev-repo
   syncPolicy:
     automated:
@@ -115,7 +115,7 @@ spec:
           # This maps your new custom values file onto the helm install execution
           - $dev-repo/helm/monitoring/jaeger-values.yaml
     - repoURL: 'https://github.com/goniusman/GitOps.git'
-      targetRevision: dev
+      targetRevision: main
       ref: dev-repo
   syncPolicy:
     automated:
