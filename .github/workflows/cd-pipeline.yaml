@@ -157,7 +157,7 @@ jobs:
       - name: Push Changes
         if: steps.gitcheck.outputs.changed == 'true'
         run: |
-          git pull --rebase origin master
-          git push origin master
+          git pull --rebase origin main
+          git push origin main
 
 
