@@ -26,6 +26,7 @@ spec:
         valueFiles:
           # $dev-repo points to the root of the Git source defined below
           - $dev-repo/helm/monitoring/prometheus-values.yaml
+        # skipCrds: true
     - repoURL: 'https://github.com/goniusman/GitOps.git'
       targetRevision: main
       ref: dev-repo # This matches the $dev-repo prefix above
@@ -34,7 +35,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      # - ServerSideApply=true
+      - ServerSideApply=true
 ---
 # Update ONLY the loki-stack portion in your argocd/infra-apps.yaml
 apiVersion: argoproj.io/v1alpha1
