@@ -25,7 +25,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/auth
-      tag: "2ec461151e683b0895365489d9ac853b0a848aa0"
+      tag: "3e19568b349c43a13a1539a41043701f229f1963"
     service:
       port: 3000
   # book:
