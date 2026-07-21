@@ -44,7 +44,6 @@ jobs:
             -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
-
       ############################################################
       # Extract payload safely
       ############################################################
@@ -52,13 +51,9 @@ jobs:
         id: payload
         run: |
           echo '${{ toJson(github.event.client_payload) }}' > payload.json
-          
-          # Debug: print the full payload to GitHub Actions logs
-          cat payload.json
 
-          # Extract services or default to empty array []
-          SERVICES=$(jq -c '.services // []' payload.json)
-          SHA=$(jq -r '.sha // ""' payload.json)
+          SERVICES=$(jq -c '.services' payload.json)
+          SHA=$(jq -r '.sha' payload.json)
 
           echo "services=$SERVICES" >> $GITHUB_OUTPUT
           echo "sha=$SHA" >> $GITHUB_OUTPUT
@@ -71,17 +66,14 @@ jobs:
           SERVICES='${{ steps.payload.outputs.services }}'
           SHA='${{ steps.payload.outputs.sha }}'
 
-          if [ -z "$SERVICES" ] || [ "$SERVICES" = "null" ] || [ "$SERVICES" = "[]" ]; then
-            echo "Error: No services found in payload!"
-            exit 1
-          fi
-
-          echo "$SERVICES" | jq -r '.[]' | while read -r SERVICE; do
+          echo "$SERVICES" | jq -r '.[]' | while read SERVICE
+          do
             echo "Updating application array item: $SERVICE → $SHA"
 
-            SERVICE_NAME="$SERVICE" TAG_VAL="$SHA" yq -i \
-              '(.applications[] | select(.name == env(SERVICE_NAME))).image.tag = env(TAG_VAL)' \
-              helm/bookverse/values.yaml
+            # This finds the item in the applications array matching the name and updates its tag
+            yq e \
+              "(.applications[] | select(.name == \"${SERVICE}\")).image.tag = \"${SHA}\"" \
+              -i helm/bookverse/values.yaml
           done
       
       # - name: Update Image Tags # (for object in helm/bookverse/values.yaml)
