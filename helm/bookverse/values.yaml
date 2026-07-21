@@ -88,9 +88,6 @@ applications:
       tag: "b92c2a226ae506b5c842c5334432b4c7c46087c6"
     service:
       port: 3000
-
-
-
 # Default values for bookverse.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
