@@ -32,6 +32,7 @@ data:
   DB_USERNAME: "bookverse"
   DB_PASSWORD: "bookverse"
   DB_NAME_AUTH: "bookverse_auth"
+  DB_NAME_REVIEW: "bookverse_auth"
 
   DB_HOST: "postgresql"
   DB_PORT: "5432"
