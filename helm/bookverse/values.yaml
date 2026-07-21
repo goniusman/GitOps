@@ -37,7 +37,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/book
-      tag: "b92c2a226ae506b5c842c5334432b4c7c46087c6"
+      tag: "1d102f4ec005373c95fbfd7bd5f6e243954d6412"
     service:
       port: 3000
   # order:
@@ -49,7 +49,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/order
-      tag: "b92c2a226ae506b5c842c5334432b4c7c46087c6"
+      tag: "1d102f4ec005373c95fbfd7bd5f6e243954d6412"
     service:
       port: 3000
   # user:
@@ -85,7 +85,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/notification
-      tag: "b92c2a226ae506b5c842c5334432b4c7c46087c6"
+      tag: "1d102f4ec005373c95fbfd7bd5f6e243954d6412"
     service:
       port: 3000
 # Default values for bookverse.
