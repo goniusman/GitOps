@@ -54,7 +54,7 @@ applications:
       port: 3000
   # user:
   - name: user
-    enabled: true
+    enabled: false
     rediness: true
     liveness: true
     startupProbe: true
@@ -88,6 +88,9 @@ applications:
       tag: "c714bdfd9870d7c403bed063ef6f2c4924d687a1"
     service:
       port: 3000
+
+
+
 # Default values for bookverse.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
