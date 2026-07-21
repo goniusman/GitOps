@@ -25,7 +25,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/auth
-      tag: "c714bdfd9870d7c403bed063ef6f2c4924d687a1"
+      tag: "2ec461151e683b0895365489d9ac853b0a848aa0"
     service:
       port: 3000
   # book:
@@ -88,9 +88,6 @@ applications:
       tag: "c714bdfd9870d7c403bed063ef6f2c4924d687a1"
     service:
       port: 3000
-
-
-
 # Default values for bookverse.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
