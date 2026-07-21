@@ -33,6 +33,10 @@ data:
   DB_PASSWORD: "bookverse"
   DB_NAME_AUTH: "bookverse_auth"
 
+  DB_HOST: "postgresql"
+  DB_PORT: "5432"
+
+
 
   # DB_HOST: "postgres" # Matches the PostgreSQL internal Service name
   # DB_PORT: "5432"
