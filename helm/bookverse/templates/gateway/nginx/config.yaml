@@ -197,7 +197,7 @@ data:
         proxy_cache off; # Explicitly bypassed for dynamic personal data
         
         # 4. Route payload safely to downstream backend infrastructure
-        proxy_pass http://user_cluster;
+        proxy_pass http://auth_cluster;
         
         # 1. Bring back the tracing headers manually
         include /etc/nginx/tracing.conf;
@@ -282,7 +282,7 @@ data:
   # ---------------------------------------------------------
   # FILE 6: routes/users.conf (Protected Paths)
   # ---------------------------------------------------------
-  # auth.conf: |
+  # user.conf: |
   #   location /users {
   #       # 1. Hault request and query the NestJS validation engine
   #       auth_request /_auth_validation_gate;
