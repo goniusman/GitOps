@@ -97,11 +97,11 @@ data:
     upstream auth_cluster   { server auth:3000; }
     upstream book_cluster   { server book:3000; }
     upstream order_cluster  { server order:3000; }
-    upstream user_cluster  { server user:3000; }
     upstream review_cluster  { server review:3000; }
 
 
   # ---------------------------------------------------------
+    # upstream user_cluster  { server user:3000; }
   # FILE 2: conf.d/upstreams.conf (Service Clustering)
   # ---------------------------------------------------------
   tracing.conf: |
