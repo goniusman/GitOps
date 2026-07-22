@@ -178,6 +178,36 @@ data:
         proxy_set_header Authorization $http_authorization;
         proxy_set_header X-Request-ID $request_id;
     }
+
+    location /users {
+        # 1. Hault request and query the NestJS validation engine
+        auth_request /_auth_validation_gate;
+
+        # 2. Extract standard token output headers returned by NestJS
+        auth_request_set $user_id    $upstream_http_x_user_id;
+        auth_request_set $user_email $upstream_http_x_user_email;
+        auth_request_set $user_role  $upstream_http_x_user_role;
+
+        # 3. Inject extracted metadata forward as incoming headers to the microservice
+        proxy_set_header X-User-Id    $user_id;
+        proxy_set_header X-User-Email $user_email;
+        proxy_set_header X-User-Role  $user_role;
+
+        # 3. SELECTIVE PER-ROUTE: Dynamic user profile (DO NOT CACHE)
+        proxy_cache off; # Explicitly bypassed for dynamic personal data
+        
+        # 4. Route payload safely to downstream backend infrastructure
+        proxy_pass http://user_cluster;
+        
+        # 1. Bring back the tracing headers manually
+        include /etc/nginx/tracing.conf;
+
+        # Forward incoming client credential headers
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Request-ID $request_id;
+
+    }
+
   
   # ---------------------------------------------------------
   # FILE 5: routes/books.conf (Catalog Paths)
@@ -252,35 +282,35 @@ data:
   # ---------------------------------------------------------
   # FILE 6: routes/users.conf (Protected Paths)
   # ---------------------------------------------------------
-  users.conf: |
-    location /users {
-        # 1. Hault request and query the NestJS validation engine
-        auth_request /_auth_validation_gate;
+  # auth.conf: |
+  #   location /users {
+  #       # 1. Hault request and query the NestJS validation engine
+  #       auth_request /_auth_validation_gate;
 
-        # 2. Extract standard token output headers returned by NestJS
-        auth_request_set $user_id    $upstream_http_x_user_id;
-        auth_request_set $user_email $upstream_http_x_user_email;
-        auth_request_set $user_role  $upstream_http_x_user_role;
+  #       # 2. Extract standard token output headers returned by NestJS
+  #       auth_request_set $user_id    $upstream_http_x_user_id;
+  #       auth_request_set $user_email $upstream_http_x_user_email;
+  #       auth_request_set $user_role  $upstream_http_x_user_role;
 
-        # 3. Inject extracted metadata forward as incoming headers to the microservice
-        proxy_set_header X-User-Id    $user_id;
-        proxy_set_header X-User-Email $user_email;
-        proxy_set_header X-User-Role  $user_role;
+  #       # 3. Inject extracted metadata forward as incoming headers to the microservice
+  #       proxy_set_header X-User-Id    $user_id;
+  #       proxy_set_header X-User-Email $user_email;
+  #       proxy_set_header X-User-Role  $user_role;
 
-        # 3. SELECTIVE PER-ROUTE: Dynamic user profile (DO NOT CACHE)
-        proxy_cache off; # Explicitly bypassed for dynamic personal data
+  #       # 3. SELECTIVE PER-ROUTE: Dynamic user profile (DO NOT CACHE)
+  #       proxy_cache off; # Explicitly bypassed for dynamic personal data
         
-        # 4. Route payload safely to downstream backend infrastructure
-        proxy_pass http://user_cluster;
+  #       # 4. Route payload safely to downstream backend infrastructure
+  #       proxy_pass http://user_cluster;
         
-        # 1. Bring back the tracing headers manually
-        include /etc/nginx/tracing.conf;
+  #       # 1. Bring back the tracing headers manually
+  #       include /etc/nginx/tracing.conf;
 
-        # Forward incoming client credential headers
-        proxy_set_header Authorization $http_authorization;
-        proxy_set_header X-Request-ID $request_id;
+  #       # Forward incoming client credential headers
+  #       proxy_set_header Authorization $http_authorization;
+  #       proxy_set_header X-Request-ID $request_id;
 
-    }
+  #   }
 
 
 

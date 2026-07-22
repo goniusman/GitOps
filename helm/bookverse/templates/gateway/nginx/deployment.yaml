@@ -48,9 +48,9 @@ spec:
         - name: routes-configs
           mountPath: /etc/nginx/routes/orders.conf
           subPath: orders.conf
-        - name: routes-configs
-          mountPath: /etc/nginx/routes/users.conf
-          subPath: users.conf
+        # - name: routes-configs
+        #   mountPath: /etc/nginx/routes/users.conf
+        #   subPath: users.conf
         - name: routes-configs
           mountPath: /etc/nginx/routes/review.conf
           subPath: review.conf
@@ -82,8 +82,8 @@ spec:
             path: books.conf
           - key: orders.conf
             path: orders.conf
-          - key: users.conf
-            path: users.conf
+          # - key: users.conf
+          #   path: users.conf
           - key: review.conf
             path: review.conf
 
