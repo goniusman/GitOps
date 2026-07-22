@@ -25,7 +25,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/auth
-      tag: "dabf8d43b38c5f130206f7d6888d6172b9231a1c"
+      tag: "9437b72a94818fa7e863950fbdf1e5996216cfc9"
     service:
       port: 3000
   # book:
@@ -73,7 +73,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/review
-      tag: "dabf8d43b38c5f130206f7d6888d6172b9231a1c"
+      tag: "9437b72a94818fa7e863950fbdf1e5996216cfc9"
     service:
       port: 3000
   # notification:
