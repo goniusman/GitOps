@@ -151,6 +151,15 @@ prometheusOperator:
       memory: 256Mi
 
 grafana:
+  adminUser: admin
+  adminPassword: "YourStrongPasswordHere"
+  sidecar:
+    dashboards:
+      enabled: true
+      # This allows Grafana to scan all namespaces for ConfigMaps labeled grafana_dashboard
+      searchNamespace: ALL
+      label: grafana_dashboard
+      labelValue: "1"
   enabled: true
   grafana.ini:
     feature_toggles:
@@ -214,19 +223,31 @@ grafana:
       istio-mesh:
         gnetId: 7630
         revision: 1
-        datasource: Prometheus
+        # Match exact lowercase datasource name from kube-prometheus-stack
+        datasource:
+          - name: DS_PROMETHEUS
+            value: prometheus
       istio-service:
         gnetId: 7636
         revision: 1
-        datasource: Prometheus
+        datasource:
+          - name: DS_PROMETHEUS
+            value: prometheus
       istio-workload:
         gnetId: 7639
         revision: 1
-        datasource: Prometheus
+        datasource:
+          - name: DS_PROMETHEUS
+            value: prometheus
       istio-performance:
         gnetId: 11829
         revision: 1
-        datasource: Prometheus
+        datasource:
+          - name: DS_PROMETHEUS
+            value: prometheus
+
+
+
 
 # helm upgrade prometheus prometheus-community/kube-prometheus-stack \
 #   -f prometheus-values.yaml \

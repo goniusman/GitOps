@@ -5,7 +5,6 @@ metadata:
   name: monitoring
 
 ---
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -36,6 +35,7 @@ spec:
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
+
 ---
 # Update ONLY the loki-stack portion in your argocd/infra-apps.yaml
 apiVersion: argoproj.io/v1alpha1
@@ -68,6 +68,7 @@ spec:
       selfHeal: true
     syncOptions:
       - ServerSideApply=true
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -93,6 +94,7 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -123,7 +125,6 @@ spec:
       prune: true
       selfHeal: true
 
-
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -146,8 +147,20 @@ spec:
       prune: true
       selfHeal: true
 
-
-
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: istio-dashboards
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  # Instructs Grafana to download these exact dashboard IDs directly from Grafana.com
+  istio-mesh.json: '{"gnetId": 7630, "revision": 1, "datasource": "prometheus"}'
+  istio-service.json: '{"gnetId": 7636, "revision": 1, "datasource": "prometheus"}'
+  istio-workload.json: '{"gnetId": 7639, "revision": 1, "datasource": "prometheus"}'
+  istio-control-plane.json: '{"gnetId": 11829, "revision": 1, "datasource": "prometheus"}'
 
 
 
