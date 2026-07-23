@@ -31,7 +31,7 @@ prometheus:
 
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
-    
+    ruleSelectorNilUsesHelmValues: false
     additionalScrapeConfigs:
     - job_name: kubernetes-pods-autodiscover
 

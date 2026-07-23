@@ -122,3 +122,35 @@ spec:
     automated:
       prune: true
       selfHeal: true
+
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istio-monitoring-aliases
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: istio-system
+  source:
+    repoURL: 'https://github.com/goniusman/GitOps.git'
+    targetRevision: main
+    path: helm/monitoring/istio-aliases.yaml
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+
+
+
+
+
+
+
+
+
+
