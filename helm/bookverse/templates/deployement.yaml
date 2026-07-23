@@ -117,8 +117,8 @@ spec:
     - name: http-web
       port: {{ .service.port }}
       targetPort: {{ .service.port }}
-    {{- if .readiness }}
-    - name: tcp
+    {{- if .service.micro_port }}
+    - name: tcp-{{ .name }}
       port: {{ .service.micro_port }}
       targetPort: {{ .service.micro_port }}
     {{- end }}  
