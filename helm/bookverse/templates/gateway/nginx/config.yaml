@@ -148,8 +148,7 @@ data:
   auth.conf: |
     # Public Facing Identity Endpoints
     location /auth {
-        proxy_pass http://auth_cluster;
-
+        
         # 1. Bring back the tracing headers manually
         include /etc/nginx/tracing.conf;
 
@@ -160,44 +159,53 @@ data:
         # Forward incoming client credential headers
         proxy_set_header Authorization $http_authorization;
         proxy_set_header X-Request-ID $request_id;
+
+        # 7. Disable caching for auth cluster
+        proxy_cache off;
+
+        proxy_pass http://auth_cluster;
     }
 
-    # Hidden Internal Loop for Forward Authentication Verification
     location = /_auth_validation_gate {
         internal;
-        proxy_pass http://auth_cluster/auth/validate-gateway;
-        
-        # 1. Bring back the tracing headers manually
-        include /etc/nginx/tracing.conf;
+        auth_request off; # Prevents parent block inheritance loops
 
-        # Save egress payload performance costs
+        proxy_pass http://auth_cluster/auth/validate-gateway;
+
+        # Performance optimizations: drop request body for validation call
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
-        
-        # Forward incoming client credential headers
+
+        # Pass client credentials & tracing metadata
         proxy_set_header Authorization $http_authorization;
         proxy_set_header X-Request-ID $request_id;
+        proxy_set_header X-Original-URI $request_uri;
+
+        include /etc/nginx/tracing.conf;
     }
 
     location ~ ^/(users|roles|permissions) {
 
-        # auth_request /_auth_validation_gate;
+        # 1. Validate request via auth engine
+        auth_request /_auth_validation_gate;
 
-        # 2. Extract standard token output headers returned by NestJS
-        auth_request_set $user_id    $upstream_http_x_user_id;
-        auth_request_set $user_email $upstream_http_x_user_email;
-        auth_request_set $user_role  $upstream_http_x_user_role;
-        auth_request_set $user_permission  $upstream_http_x_user_permissions;
+        # 2. Extract validated claims
+        auth_request_set $user_id          $upstream_http_x_user_id;
+        auth_request_set $user_email       $upstream_http_x_user_email;
+        auth_request_set $user_role        $upstream_http_x_user_role;
+        auth_request_set $user_permissions $upstream_http_x_user_permissions;
 
-        # 3. Inject extracted metadata forward as incoming headers to the microservice
-        proxy_set_header X-User-Id    $user_id;
-        proxy_set_header X-User-Email $user_email;
-        proxy_set_header X-User-Role  $user_role;
-        proxy_set_header X-User-Permission  $user_permission;
+        # 3. Inject headers forward
+        proxy_set_header X-User-Id          $user_id;
+        proxy_set_header X-User-Email       $user_email;
+        proxy_set_header X-User-Role        $user_role;
+        proxy_set_header X-User-Permissions $user_permissions;
 
-        proxy_set_header Authorization $http_authorization;
-        proxy_set_header X-Request-ID $request_id;
+        # Forward raw credentials and request metadata
+        proxy_set_header Authorization      $http_authorization;
+        proxy_set_header X-Request-ID       $request_id;
 
+        # Ensure auth routes are never cached
         proxy_cache off;
 
         include /etc/nginx/tracing.conf;
@@ -211,38 +219,36 @@ data:
   books.conf: |
     location /books {
         
-        # 1. Hault request and query the NestJS validation engine
+        # 1. Authenticate request via NestJS Auth Gateway
         auth_request /_auth_validation_gate;
 
-        # 2. Extract standard token output headers returned by NestJS
-        auth_request_set $user_id    $upstream_http_x_user_id;
-        auth_request_set $user_email $upstream_http_x_user_email;
-        auth_request_set $user_role  $upstream_http_x_user_role;
-        auth_request_set $user_permission  $upstream_http_x_user_permissions;
+        # 2. Extract headers returned by Auth Gateway
+        auth_request_set $user_id          $upstream_http_x_user_id;
+        auth_request_set $user_email       $upstream_http_x_user_email;
+        auth_request_set $user_roles       $upstream_http_x_user_roles;
+        auth_request_set $user_permissions $upstream_http_x_user_permissions;
 
-        # 3. Inject extracted metadata forward as incoming headers to the microservice
-        proxy_set_header X-User-Id    $user_id;
-        proxy_set_header X-User-Email $user_email;
-        proxy_set_header X-User-Role  $user_role;
-        proxy_set_header X-User-Permission  $user_permission;
+        # 3. Inject validated metadata forward to book_cluster
+        proxy_set_header X-User-Id          $user_id;
+        proxy_set_header X-User-Email       $user_email;
+        proxy_set_header X-User-Role        $user_roles;
+        proxy_set_header X-User-Permissions $user_permissions;
+        proxy_set_header X-Request-ID       $request_id;
 
-        # 2. SELECTIVE PER-ROUTE: Cache public book listings
+        # 4. Selective Caching (Prevents cross-user data leaks)
         proxy_cache BOOKVERSE_CACHE;
-        proxy_cache_valid 200 10m; # Cache successful requests for 10 minutes
+        proxy_cache_valid 200 10m;
         proxy_cache_use_stale error timeout updating;
+        # Include user identity in the key so User A never gets User B's response
+        proxy_cache_key "$scheme$proxy_host$request_uri$user_id";
 
-        proxy_pass http://book_cluster;
-     
-        # 1. Bring back the tracing headers manually
+        # 5. Circuit breaking & tracing
         include /etc/nginx/tracing.conf;
-
-        # Fail-safe circuit break configuration
         proxy_next_upstream error timeout http_502 http_503;
         proxy_next_upstream_tries 2;
 
-        # Forward incoming client credential headers
-        proxy_set_header Authorization $http_authorization;
-        proxy_set_header X-Request-ID $request_id;
+        # 6. Forward request to upstream cluster
+        proxy_pass http://book_cluster;
 
     }
 
@@ -250,14 +256,15 @@ data:
         # Allow up to 20 Megabyte PDF/image transfers
         client_max_body_size 20m; 
 
-        proxy_pass http://book_cluster;
-
         # 1. Bring back the tracing headers manually
         include /etc/nginx/tracing.conf;
 
         # Forward incoming client credential headers
         proxy_set_header Authorization $http_authorization;
         proxy_set_header X-Request-ID $request_id;
+
+        proxy_pass http://book_cluster;
+        
     }
       
   # ---------------------------------------------------------
@@ -265,30 +272,25 @@ data:
   # ---------------------------------------------------------
   orders.conf: |
     location /orders {
-        # 1. Hault request and query the NestJS validation engine
+        # 1. Intercept request and query NestJS Auth Gateway
         auth_request /_auth_validation_gate;
 
-        # 2. Extract standard token output headers returned by NestJS
-        auth_request_set $user_id    $upstream_http_x_user_id;
-        auth_request_set $user_email $upstream_http_x_user_email;
-        auth_request_set $user_role  $upstream_http_x_user_role;
-        auth_request_set $user_permission  $upstream_http_x_user_permissions;
+        # 2. Extract user metadata from NestJS response headers
+        auth_request_set $user_id          $upstream_http_x_user_id;
+        auth_request_set $user_email       $upstream_http_x_user_email;
+        auth_request_set $user_role        $upstream_http_x_user_role;
+        auth_request_set $user_permissions $upstream_http_x_user_permissions;
 
-        # 3. Inject extracted metadata forward as incoming headers to the microservice
-        proxy_set_header X-User-Id    $user_id;
-        proxy_set_header X-User-Email $user_email;
-        proxy_set_header X-User-Role  $user_role;
-        proxy_set_header X-User-Permission  $user_permission;
+        # 3. Inject validated metadata down to order_cluster
+        proxy_set_header X-User-Id          $user_id;
+        proxy_set_header X-User-Email       $user_email;
+        proxy_set_header X-User-Role        $user_role;
+        proxy_set_header X-User-Permissions $user_permissions;
+        proxy_set_header X-Request-ID       $request_id;
 
-        # 4. Route payload safely to downstream backend infrastructure
-        proxy_pass http://order_cluster;
-
-        # 1. Bring back the tracing headers manually
+        # 4. Tracing and proxy execution
         include /etc/nginx/tracing.conf;
-
-        # Forward incoming client credential headers
-        proxy_set_header Authorization $http_authorization;
-        proxy_set_header X-Request-ID $request_id;
+        proxy_pass http://order_cluster;
 
     }
 
