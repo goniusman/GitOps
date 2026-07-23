@@ -6,10 +6,15 @@ metadata:
   name: {{ .name | quote }}
   namespace: {{ $.Values.global.namespace | quote }}
   labels:
+    # 1. Istio Canonical Telemetry Labels (Fixes "version label missing")
+    app: {{ .name | quote }}
+    version: {{ $.Values.image.tag | default "v1" | quote }}
+
+    # 2. Recommended Kubernetes Labels
     app.kubernetes.io/name: {{ .name | quote }}
     app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
     app.kubernetes.io/component: microservice
-    app.kubernetes.io/version: v1
+    app.kubernetes.io/version: {{ $.Values.image.tag | default "v1" | quote }}
 spec:
   replicas: {{ .replicaCount }}
   revisionHistoryLimit: 3
@@ -30,10 +35,16 @@ spec:
         proxy.istio.io/config: |
           holdApplicationUntilProxyStarts: true
       labels:
+        # Istio Telemetry Labels (Pod Level)
         app: {{ .name | quote }}
+        version: {{ $.Values.image.tag | default "v1" | quote }} # <--- ADDED HERE
+
+        # Kubernetes Standard Labels
         app.kubernetes.io/name: {{ .name | quote }}
+        app.kubernetes.io/version: {{ $.Values.image.tag | default "v1" | quote }}
         app.kubernetes.io/component: microservice
         app.kubernetes.io/part-of: {{ $.Values.global.namespace | quote }}
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: {{ .name | quote }}
