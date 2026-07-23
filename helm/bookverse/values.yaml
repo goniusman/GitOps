@@ -38,7 +38,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/book
-      tag: "b5101e87070025538b57b403eec2c3154e328b85"
+      tag: "6d50fd8ff43ffe55addc4fe8071a40969aa2cdc8"
     service:
       port: 3000
       # micro_port: 8877
