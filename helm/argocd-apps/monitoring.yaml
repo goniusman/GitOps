@@ -128,7 +128,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: istio-monitoring-aliases
+  name: istio-monitoring-aliases 
   namespace: argocd
 spec:
   project: default
