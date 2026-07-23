@@ -18,6 +18,24 @@ metadata:
   labels:
     app: grafana
 spec:
-  type: ExternalName
+  # type: ExternalName
   # Format: <service-name>.<namespace>.svc.cluster.local
-  externalName: monitoring-stack-grafana.monitoring.svc.cluster.local
+  # externalName: monitoring-stack-grafana.monitoring.svc.cluster.local
+  spec:
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 80
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: grafana
+  namespace: istio-system
+subsets:
+- addresses:
+  # Replace with the ClusterIP of your 'monitoring-stack-grafana' service
+  - ip: 10.97.253.171
+  ports:
+  - port: 80

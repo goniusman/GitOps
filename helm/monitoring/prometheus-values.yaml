@@ -162,7 +162,6 @@ grafana:
     limits:
       cpu: 200m
       memory: 256Mi
-
   additionalDataSources:
     # - name: Prometheus
     #   type: prometheus
@@ -198,7 +197,36 @@ grafana:
       url: http://jaeger-stack-query:16686
       version: 1
       isDefault: false
-
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'istio'
+          orgId: 1
+          folder: 'Istio'
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/istio
+  dashboards:
+    istio:
+      istio-mesh:
+        gnetId: 7630
+        revision: 1
+        datasource: Prometheus
+      istio-service:
+        gnetId: 7636
+        revision: 1
+        datasource: Prometheus
+      istio-workload:
+        gnetId: 7639
+        revision: 1
+        datasource: Prometheus
+      istio-performance:
+        gnetId: 11829
+        revision: 1
+        datasource: Prometheus
 
 # helm upgrade prometheus prometheus-community/kube-prometheus-stack \
 #   -f prometheus-values.yaml \
