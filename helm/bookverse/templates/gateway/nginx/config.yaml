@@ -183,13 +183,17 @@ data:
 
         # auth_request /_auth_validation_gate;
 
+        # 2. Extract standard token output headers returned by NestJS
         auth_request_set $user_id    $upstream_http_x_user_id;
         auth_request_set $user_email $upstream_http_x_user_email;
         auth_request_set $user_role  $upstream_http_x_user_role;
+        auth_request_set $user_permission  $upstream_http_x_user_permissions;
 
+        # 3. Inject extracted metadata forward as incoming headers to the microservice
         proxy_set_header X-User-Id    $user_id;
         proxy_set_header X-User-Email $user_email;
         proxy_set_header X-User-Role  $user_role;
+        proxy_set_header X-User-Permission  $user_permission;
 
         proxy_set_header Authorization $http_authorization;
         proxy_set_header X-Request-ID $request_id;
@@ -214,11 +218,13 @@ data:
         auth_request_set $user_id    $upstream_http_x_user_id;
         auth_request_set $user_email $upstream_http_x_user_email;
         auth_request_set $user_role  $upstream_http_x_user_role;
+        auth_request_set $user_permission  $upstream_http_x_user_permissions;
 
         # 3. Inject extracted metadata forward as incoming headers to the microservice
         proxy_set_header X-User-Id    $user_id;
         proxy_set_header X-User-Email $user_email;
         proxy_set_header X-User-Role  $user_role;
+        proxy_set_header X-User-Permission  $user_permission;
 
         # 2. SELECTIVE PER-ROUTE: Cache public book listings
         proxy_cache BOOKVERSE_CACHE;
@@ -266,11 +272,13 @@ data:
         auth_request_set $user_id    $upstream_http_x_user_id;
         auth_request_set $user_email $upstream_http_x_user_email;
         auth_request_set $user_role  $upstream_http_x_user_role;
+        auth_request_set $user_permission  $upstream_http_x_user_permissions;
 
         # 3. Inject extracted metadata forward as incoming headers to the microservice
         proxy_set_header X-User-Id    $user_id;
         proxy_set_header X-User-Email $user_email;
         proxy_set_header X-User-Role  $user_role;
+        proxy_set_header X-User-Permission  $user_permission;
 
         # 4. Route payload safely to downstream backend infrastructure
         proxy_pass http://order_cluster;
