@@ -25,7 +25,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/auth
-      tag: "913544dee154d1e2c72fe2bfda0ef4193de4a3db"
+      tag: "2d79e6b3be75863bcfc6e537a6c1aa93774baa03"
     service:
       port: 3000
       micro_port: 8877
@@ -38,7 +38,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/book
-      tag: "1d36b31568139b14184631f600dd07e5e534d44e"
+      tag: "2d79e6b3be75863bcfc6e537a6c1aa93774baa03"
     service:
       port: 3000
       # micro_port: 8877
@@ -51,7 +51,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/order
-      tag: "b5101e87070025538b57b403eec2c3154e328b85"
+      tag: "2d79e6b3be75863bcfc6e537a6c1aa93774baa03"
     service:
       port: 3000
       # micro_port: 8877
@@ -76,7 +76,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/review
-      tag: "b5101e87070025538b57b403eec2c3154e328b85"
+      tag: "2d79e6b3be75863bcfc6e537a6c1aa93774baa03"
     service:
       port: 3000
       # micro_port: 8877
@@ -89,7 +89,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/notification
-      tag: "1d102f4ec005373c95fbfd7bd5f6e243954d6412"
+      tag: "2d79e6b3be75863bcfc6e537a6c1aa93774baa03"
     service:
       port: 3000
 # Default values for bookverse.
