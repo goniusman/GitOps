@@ -1,0 +1,45 @@
+### (Order Service)
+POST http://gateway.local/orders HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwNjI2YjNjMC00MzVmLTQzZTMtYjdhZi1hYWJiOTBjODM1ODIiLCJlbWFpbCI6Imdvbml1c21hbjUwM0BnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MjE5OTAwNSwiZXhwIjoxNzgyODAzODA1fQ.ZG1gsB1SKUI7c5t1mDskYBKdFdIyKAI2ejr9kBEDink
+
+{
+    "userId": "eb4cb1e0-d9db-4812-b2ef-131e6b3473af",
+    "bookId": "6a3a3a6403592c3ad9c9103e",
+    "price": 345,
+    "quantity" : 2
+}
+
+####
+GET http://gateway.local/orders HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjRjYjFlMC1kOWRiLTQ4MTItYjJlZi0xMzFlNmIzNDczYWYiLCJlbWFpbCI6Imdvbml1c21hbjEwNTAwQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgyMDIyODk3LCJleHAiOjE3ODI2Mjc2OTd9.QgYEOxWry0jV9t3n2iWHvZwdKXwNLx82hsOpZehvzEw
+
+
+####
+GET http://gateway.local/orders/6a2aab67e78144ae06f8126e HTTP/1.1
+
+
+####
+PUT http://gateway.local/orders/6a2aac55e78144ae06f81270 HTTP/1.1
+content-type: application/json
+
+{
+    // "userId": "2",
+    // "bookId": "2",
+    "price": 33
+}
+
+####
+DELETE http://gateway.local/orders/6a1bdebe614ce908eaa87fad HTTP/1.1
+content-type: application/json
+
+
+### (User Service)
+POST http://gateway.local/users HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmUxZTZkLWJmZmItNDIwMi05MjUzLWU2YWJhZmM0NGY1MyIsImVtYWlsIjoiYWRtaW5AZW50ZXJwcmlzZS5jb20iLCJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sInBlcm1pc3Npb25zIjpbInVzZXI6Y3JlYXRlIiwidXNlcjpyZWFkIiwidXNlcjpyZWFkX29uZSIsInVzZXI6dXBkYXRlIiwidXNlcjpkZWxldGUiLCJib29rOmNyZWF0ZSIsImJvb2s6cmVhZCIsImJvb2s6cmVhZF9vbmUiLCJib29rOnVwZGF0ZSIsImJvb2s6ZGVsZXRlIiwib3JkZXI6Y3JlYXRlIiwib3JkZXI6Z2V0Iiwib3JkZXI6dXBkYXRlIiwib3JkZXI6ZGVsZXRlIiwicmV2aWV3OmNyZWF0ZSIsInJldmlldzpyZWFkIiwicmV2aWV3OnJlYWRfb25lIiwicmV2aWV3OmJvb2tfaWQiLCJyZXZpZXc6dXBkYXRlIiwicmV2aWV3OmRlbGV0ZSJdLCJpYXQiOjE3ODQ3OTY0MTMsImV4cCI6MTc4NTQwMTIxM30.mwqY0LGQ5G6evHenytbp2MHj-7XebfTgbZaioCQFqY0
+
+{
+    "email": "goniusman200@gmail.com",
+    "password": "Osman@#1"
+}

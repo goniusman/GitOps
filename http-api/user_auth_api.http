@@ -1,0 +1,193 @@
+GET http://gateway.local/auth/health/live HTTP/1.1
+
+###
+GET http://gateway.local/auth/health/ready HTTP/1.1
+
+### (Auth Service)
+POST http://gateway.local/auth/register HTTP/1.1
+content-type: application/json
+
+{
+    "email": "goniusman100@gmail.com",
+    "password": "Osman@#1"
+}
+
+###
+POST http://gateway.local/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "admin@enterprise.com",
+    "password": "Password123!"
+}
+
+# {
+#     "email": "goniusman500@gmail.com",
+#     "password": "Osman@#1"
+# }
+
+
+###
+GET http://gateway.local/auth/validate-gateway HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmUxZTZkLWJmZmItNDIwMi05MjUzLWU2YWJhZmM0NGY1MyIsImVtYWlsIjoiYWRtaW5AZW50ZXJwcmlzZS5jb20iLCJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sInBlcm1pc3Npb25zIjpbInVzZXI6Y3JlYXRlIiwidXNlcjpyZWFkIiwidXNlcjpyZWFkX29uZSIsInVzZXI6dXBkYXRlIiwidXNlcjpkZWxldGUiLCJib29rOmNyZWF0ZSIsImJvb2s6cmVhZCIsImJvb2s6cmVhZF9vbmUiLCJib29rOnVwZGF0ZSIsImJvb2s6ZGVsZXRlIiwib3JkZXI6Y3JlYXRlIiwib3JkZXI6Z2V0Iiwib3JkZXI6dXBkYXRlIiwib3JkZXI6ZGVsZXRlIiwicmV2aWV3OmNyZWF0ZSIsInJldmlldzpyZWFkIiwicmV2aWV3OnJlYWRfb25lIiwicmV2aWV3OmJvb2tfaWQiLCJyZXZpZXc6dXBkYXRlIiwicmV2aWV3OmRlbGV0ZSJdLCJpYXQiOjE3ODQ3OTY0MTMsImV4cCI6MTc4NTQwMTIxM30.mwqY0LGQ5G6evHenytbp2MHj-7XebfTgbZaioCQFqY0
+
+
+###
+POST http://gateway.local/auth/refresh HTTP/1.1
+content-type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4Y2E4YzlhOS1mM2RkLTQ2ZDMtOWI5MC1lNDRjYTY5NTViMGMiLCJlbWFpbCI6Imdvbml1c21hbjYwMEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MTE4MTAzMSwiZXhwIjoxNzgxNzg1ODMxfQ.ylrYqekdlqUWeDq8MW19YOdPM03ehpJrcKkCRSfJjmE"
+}
+
+###
+POST http://gateway.local/auth/logout HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYzkzMWNkMy0yODQ2LTQxYjEtOGVjMy1hNGIwODZjNDUwNzkiLCJlbWFpbCI6Imdvbml1c21hbjQwMEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MDgyOTgxNCwiZXhwIjoxNzgxNDM0NjE0fQ.Mvs9758YFaD48YmtEuVJEiCNd-AkqSZGIu2F9YBl1q0
+
+
+###
+GET http://gateway.local/auth/profile HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmUxZTZkLWJmZmItNDIwMi05MjUzLWU2YWJhZmM0NGY1MyIsImVtYWlsIjoiYWRtaW5AZW50ZXJwcmlzZS5jb20iLCJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sInBlcm1pc3Npb25zIjpbInVzZXI6Y3JlYXRlIiwidXNlcjpyZWFkIiwidXNlcjpyZWFkX29uZSIsInVzZXI6dXBkYXRlIiwidXNlcjpkZWxldGUiLCJib29rOmNyZWF0ZSIsImJvb2s6cmVhZCIsImJvb2s6cmVhZF9vbmUiLCJib29rOnVwZGF0ZSIsImJvb2s6ZGVsZXRlIiwib3JkZXI6Y3JlYXRlIiwib3JkZXI6Z2V0Iiwib3JkZXI6dXBkYXRlIiwib3JkZXI6ZGVsZXRlIiwicmV2aWV3OmNyZWF0ZSIsInJldmlldzpyZWFkIiwicmV2aWV3OnJlYWRfb25lIiwicmV2aWV3OmJvb2tfaWQiLCJyZXZpZXc6dXBkYXRlIiwicmV2aWV3OmRlbGV0ZSJdLCJpYXQiOjE3ODQ3OTY0MTMsImV4cCI6MTc4NTQwMTIxM30.mwqY0LGQ5G6evHenytbp2MHj-7XebfTgbZaioCQFqY0
+
+
+
+
+####
+GET http://gateway.local/users HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmUxZTZkLWJmZmItNDIwMi05MjUzLWU2YWJhZmM0NGY1MyIsImVtYWlsIjoiYWRtaW5AZW50ZXJwcmlzZS5jb20iLCJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sInBlcm1pc3Npb25zIjpbInVzZXI6Y3JlYXRlIiwidXNlcjpyZWFkIiwidXNlcjpyZWFkX29uZSIsInVzZXI6dXBkYXRlIiwidXNlcjpkZWxldGUiLCJib29rOmNyZWF0ZSIsImJvb2s6cmVhZCIsImJvb2s6cmVhZF9vbmUiLCJib29rOnVwZGF0ZSIsImJvb2s6ZGVsZXRlIiwib3JkZXI6Y3JlYXRlIiwib3JkZXI6Z2V0Iiwib3JkZXI6dXBkYXRlIiwib3JkZXI6ZGVsZXRlIiwicmV2aWV3OmNyZWF0ZSIsInJldmlldzpyZWFkIiwicmV2aWV3OnJlYWRfb25lIiwicmV2aWV3OmJvb2tfaWQiLCJyZXZpZXc6dXBkYXRlIiwicmV2aWV3OmRlbGV0ZSJdLCJpYXQiOjE3ODQ3OTY0MTMsImV4cCI6MTc4NTQwMTIxM30.mwqY0LGQ5G6evHenytbp2MHj-7XebfTgbZaioCQFqY0
+
+
+####
+GET http://gateway.local/users/266e1e6d-bffb-4202-9253-e6abafc44f53 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmUxZTZkLWJmZmItNDIwMi05MjUzLWU2YWJhZmM0NGY1MyIsImVtYWlsIjoiYWRtaW5AZW50ZXJwcmlzZS5jb20iLCJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sInBlcm1pc3Npb25zIjpbInVzZXI6Y3JlYXRlIiwidXNlcjpyZWFkIiwidXNlcjpyZWFkX29uZSIsInVzZXI6dXBkYXRlIiwidXNlcjpkZWxldGUiLCJib29rOmNyZWF0ZSIsImJvb2s6cmVhZCIsImJvb2s6cmVhZF9vbmUiLCJib29rOnVwZGF0ZSIsImJvb2s6ZGVsZXRlIiwib3JkZXI6Y3JlYXRlIiwib3JkZXI6Z2V0Iiwib3JkZXI6dXBkYXRlIiwib3JkZXI6ZGVsZXRlIiwicmV2aWV3OmNyZWF0ZSIsInJldmlldzpyZWFkIiwicmV2aWV3OnJlYWRfb25lIiwicmV2aWV3OmJvb2tfaWQiLCJyZXZpZXc6dXBkYXRlIiwicmV2aWV3OmRlbGV0ZSJdLCJpYXQiOjE3ODQ3OTY0MTMsImV4cCI6MTc4NTQwMTIxM30.mwqY0LGQ5G6evHenytbp2MHj-7XebfTgbZaioCQFqY0
+
+
+####
+PUT http://gateway.local/users/266e1e6d-bffb-4202-9253-e6abafc44f53 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmUxZTZkLWJmZmItNDIwMi05MjUzLWU2YWJhZmM0NGY1MyIsImVtYWlsIjoiYWRtaW5AZW50ZXJwcmlzZS5jb20iLCJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sInBlcm1pc3Npb25zIjpbInVzZXI6Y3JlYXRlIiwidXNlcjpyZWFkIiwidXNlcjpyZWFkX29uZSIsInVzZXI6dXBkYXRlIiwidXNlcjpkZWxldGUiLCJib29rOmNyZWF0ZSIsImJvb2s6cmVhZCIsImJvb2s6cmVhZF9vbmUiLCJib29rOnVwZGF0ZSIsImJvb2s6ZGVsZXRlIiwib3JkZXI6Y3JlYXRlIiwib3JkZXI6Z2V0Iiwib3JkZXI6dXBkYXRlIiwib3JkZXI6ZGVsZXRlIiwicmV2aWV3OmNyZWF0ZSIsInJldmlldzpyZWFkIiwicmV2aWV3OnJlYWRfb25lIiwicmV2aWV3OmJvb2tfaWQiLCJyZXZpZXc6dXBkYXRlIiwicmV2aWV3OmRlbGV0ZSJdLCJpYXQiOjE3ODQ3OTY0MTMsImV4cCI6MTc4NTQwMTIxM30.mwqY0LGQ5G6evHenytbp2MHj-7XebfTgbZaioCQFqY0
+
+{
+    "email": "admin@enterprise.com",
+    "status": "DEACTIVE"
+}
+
+
+####
+DELETE http://gateway.local/users/6a1bdebe614ce908eaa87fad HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI2NmUxZTZkLWJmZmItNDIwMi05MjUzLWU2YWJhZmM0NGY1MyIsImVtYWlsIjoiYWRtaW5AZW50ZXJwcmlzZS5jb20iLCJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sInBlcm1pc3Npb25zIjpbInVzZXI6Y3JlYXRlIiwidXNlcjpyZWFkIiwidXNlcjpyZWFkX29uZSIsInVzZXI6dXBkYXRlIiwidXNlcjpkZWxldGUiLCJib29rOmNyZWF0ZSIsImJvb2s6cmVhZCIsImJvb2s6cmVhZF9vbmUiLCJib29rOnVwZGF0ZSIsImJvb2s6ZGVsZXRlIiwib3JkZXI6Y3JlYXRlIiwib3JkZXI6Z2V0Iiwib3JkZXI6dXBkYXRlIiwib3JkZXI6ZGVsZXRlIiwicmV2aWV3OmNyZWF0ZSIsInJldmlldzpyZWFkIiwicmV2aWV3OnJlYWRfb25lIiwicmV2aWV3OmJvb2tfaWQiLCJyZXZpZXc6dXBkYXRlIiwicmV2aWV3OmRlbGV0ZSJdLCJpYXQiOjE3ODQ3OTY0MTMsImV4cCI6MTc4NTQwMTIxM30.mwqY0LGQ5G6evHenytbp2MHj-7XebfTgbZaioCQFqY0
+
+### Create Permission
+POST http://gateway.local/permissions HTTP/1.1
+content-type: application/json
+
+{
+    "name": "user:create",
+    "method": "POST",
+    "path": "/users"
+}
+
+
+### Create another Permission (for later role assignment tests)
+POST http://gateway.local/permissions HTTP/1.1
+content-type: application/json
+
+{
+    "name": "user:read",
+    "method": "GET",
+    "path": "/users"
+}
+
+
+### Get all Permissions
+GET http://gateway.local/permissions HTTP/1.1
+
+
+### Get one Permission by id
+GET http://gateway.local/permissions/8cf899b5-ef55-4551-ac81-a142669c8130 HTTP/1.1
+
+###
+
+### Update Permission
+PATCH http://gateway.local/permissions/11111111-1111-1111-1111-111111111111 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "user:create",
+    "method": "POST",
+    "path": "/users"
+}
+
+###
+
+### Delete Permission
+DELETE http://gateway.local/permissions/485ae64b-eb20-4dee-bc5e-033e556781c9 HTTP/1.1
+
+###
+
+
+### =========================
+### ROLES
+### =========================
+
+### Create Role
+POST http://gateway.local/roles HTTP/1.1
+content-type: application/json
+
+{
+    "name": "administrator"
+}
+
+###
+
+### Create Role with permissionIds directly
+POST http://gateway.local/roles HTTP/1.1
+content-type: application/json
+
+{
+    "name": "author",
+    "permissionIds": ["8cf899b5-ef55-4551-ac81-a142669c8130"]
+}
+
+###
+
+### Get all Roles
+GET http://gateway.local/roles HTTP/1.1
+
+###
+
+### Get one Role by id
+GET http://gateway.local/roles/63604bfa-196b-4880-b9e9-47411f1442d7 HTTP/1.1
+
+###
+
+### Update Role (name and/or permissionIds)
+PATCH http://gateway.local/roles/63604bfa-196b-4880-b9e9-47411f1442d7 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "moderator",
+    "permissionIds": ["8cf899b5-ef55-4551-ac81-a142669c8130"]
+}
+
+###
+
+### Assign Permissions to Role by name (used by seed script)
+POST http://gateway.local/roles/administrator/permissions HTTP/1.1
+content-type: application/json
+
+{
+    "permissions": ["user:create", "user:read"]
+}
+
+###
+
+### Delete Role
+DELETE http://gateway.local/roles/485ae64b-eb20-4dee-bc5e-033e556781c9 HTTP/1.1
+
+###

@@ -335,28 +335,28 @@ data:
   # ---------------------------------------------------------
   review.conf: |
     location /review {
-        # 1. Hault request and query the NestJS validation engine
+        # 1. Intercept request and query NestJS Auth Gateway
         auth_request /_auth_validation_gate;
 
-        # 2. Extract standard token output headers returned by NestJS
-        auth_request_set $user_id    $upstream_http_x_user_id;
-        auth_request_set $user_email $upstream_http_x_user_email;
-        auth_request_set $user_role  $upstream_http_x_user_role;
+        # 2. Extract user metadata from NestJS response headers
+        auth_request_set $user_id          $upstream_http_x_user_id;
+        auth_request_set $user_email       $upstream_http_x_user_email;
+        auth_request_set $user_role        $upstream_http_x_user_role;
+        auth_request_set $user_permissions $upstream_http_x_user_permissions;
 
-        # 3. Inject extracted metadata forward as incoming headers to the microservice
-        proxy_set_header X-User-Id    $user_id;
-        proxy_set_header X-User-Email $user_email;
-        proxy_set_header X-User-Role  $user_role;
+        # 3. Inject validated metadata down to order_cluster
+        proxy_set_header X-User-Id          $user_id;
+        proxy_set_header X-User-Email       $user_email;
+        proxy_set_header X-User-Role        $user_role;
+        proxy_set_header X-User-Permissions $user_permissions;
+        proxy_set_header X-Request-ID       $request_id;
+
+        # 4. Tracing and proxy execution
+        include /etc/nginx/tracing.conf;
 
         # 4. Route payload safely to downstream backend infrastructure
         proxy_pass http://review_cluster;
-       
-        # 1. Bring back the tracing headers manually
-        include /etc/nginx/tracing.conf;
-        
-        # Forward incoming client credential headers
-        proxy_set_header Authorization $http_authorization;
-        proxy_set_header X-Request-ID $request_id;
+
     }
 
 
