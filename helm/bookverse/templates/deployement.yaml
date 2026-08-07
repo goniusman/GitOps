@@ -147,7 +147,7 @@ spec:
               number: {{ .service.port }}
 
 ---
-apiVersion: networking.istio.io/v1
+apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: {{ .name | quote }}
@@ -179,7 +179,7 @@ spec:
 
 ---
 ### Global Security Policies (Defined once per namespace)
-apiVersion: security.istio.io/v1
+apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
 metadata:
   name: default
@@ -191,7 +191,7 @@ spec:
 
 
 ---
-apiVersion: security.istio.io/v1
+apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
   name: allow-bookverse
