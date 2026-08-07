@@ -7,7 +7,7 @@ data:
   server.insecure: "true"
   
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: argo-routing
@@ -26,7 +26,7 @@ spec:
 
 
 ---
-# apiVersion: networking.istio.io/v1alpha3
+# apiVersion: networking.istio.io/v1beta1
 # kind: DestinationRule
 # metadata:
 #   name: argocd-server-tls-bridge
@@ -43,7 +43,7 @@ spec:
 
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: kubernetes-dashboard
@@ -61,7 +61,7 @@ spec:
           number: 80
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: bookverswe-application
@@ -80,7 +80,7 @@ spec:
 
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: rabbitmq
@@ -98,7 +98,7 @@ spec:
           number: 15672
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: mongo-compass
@@ -116,7 +116,7 @@ spec:
           number: 8080
     
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: pgadmin
@@ -134,7 +134,7 @@ spec:
           number: 5050
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: grafana
@@ -152,7 +152,7 @@ spec:
           number: 80
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: jaeger-tracing
@@ -170,7 +170,7 @@ spec:
           number: 16686
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: kiali
@@ -188,7 +188,7 @@ spec:
           number: 20001
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: prometheus
@@ -206,7 +206,7 @@ spec:
           number: 9090
 
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: loki
@@ -225,7 +225,7 @@ spec:
 
 
 ---
-# apiVersion: networking.istio.io/v1alpha3
+# apiVersion: networking.istio.io/v1beta1
 # kind: VirtualService
 # metadata:
 #   name: zipkin

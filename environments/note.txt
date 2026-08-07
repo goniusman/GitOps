@@ -1,0 +1,69 @@
+
+terraform validate
+terraform init
+terraform init -reconfigure
+terraform plan 
+
+>>>>>>>>> First apply(Terraform initializes providers before creating resources.)
+terraform apply -target=module.vpc
+terraform apply -target=module.eks
+
+>>>>>> Then
+terraform apply
+
+>>>>>> Remove or move it
+terraform state rm module.eks.kubernetes_namespace.bookverse
+
+
+
+
+dev/infrastructure
+Terraform State
+──────────────────────────
+VPC
+Subnets
+IGW
+NAT
+EKS
+IAM
+ECR
+S3
+RDS
+Redis
+
+
+dev/platform
+Terraform State
+──────────────────────────
+Namespaces
+Istio
+Ingress
+Metrics
+Dashboard
+ArgoCD
+Applications
+
+
+
+>>>>>>>>> First
+cd environments/dev/infrastructure
+terraform init -reconfigure
+terraform apply -var="use_floci=true" -auto-approve
+
+
+
+
+>>>>> second
+cd environments/dev/platform
+terraform init -reconfigure
+terraform apply -var="use_floci=true" -auto-approve
+
+
+
+>>>>> Destroy 
+terraform destroy -target=aws_instance.web_server
+terraform destroy -auto-approve
+
+
+
+

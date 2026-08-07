@@ -1,0 +1,12 @@
+./scripts/trace-pod.sh book-76586bfd9d-pn98v bookverse
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,166 @@
+
+# 2. Configure Kubernetes Provider targeting local EKS cluster
+provider "kubernetes" {
+  host                   = aws_eks_cluster.main.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.main.certificate_authority[0].data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.main.name]
+  }
+}
+
+# 3. Configure Helm Provider
+provider "helm" {
+  kubernetes {
+    host                   = aws_eks_cluster.main.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.main.certificate_authority[0].data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.main.name]
+    }
+  }
+}
+
+# # 4. Ingress Namespace
+# resource "kubernetes_namespace" "ingress_nginx" {
+#   metadata {
+#     name = "ingress-nginx"
+#   }
+# }
+
+# # 5. Helm Release: Ingress NGINX Controller
+# resource "helm_release" "ingress_nginx" {
+#   name       = "ingress-nginx"
+#   repository = "https://kubernetes.github.io/ingress-nginx"
+#   chart      = "ingress-nginx"
+#   namespace  = kubernetes_namespace.ingress_nginx.metadata[0].name
+#   version    = "4.10.0"
+
+#   set {
+#     name  = "controller.service.type"
+#     value = "LoadBalancer"
+#   }
+
+#   set {
+#     name  = "controller.replicaCount"
+#     value = "2"
+#   }
+
+#   depends_on = [
+#     aws_eks_node_group.main_nodes
+#   ]
+# }
+
+# 6. Test App Namespace
+resource "kubernetes_namespace" "test_app" {
+  metadata {
+    name = "test-app"
+  }
+}
+
+# 7. Test Deployment to Verify Networking
+resource "kubernetes_deployment" "echo_test" {
+  metadata {
+    name      = "echo-test"
+    namespace = kubernetes_namespace.test_app.metadata[0].name
+  }
+
+  spec {
+    replicas = 2
+
+    selector {
+      match_labels = {
+        app = "echo-test"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "echo-test"
+        }
+      }
+
+      spec {
+        container {
+          name  = "echo-server"
+          image = "registry.k8s.io/e2e-test-images/agnhost:2.39"
+          args  = ["netexec", "--http-port=8080"]
+
+          port {
+            container_port = 8080
+          }
+
+          resources {
+            limits = {
+              cpu    = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu    = "50m"
+              memory = "64Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# 8. Test Service
+resource "kubernetes_service" "echo_test_svc" {
+  metadata {
+    name      = "echo-test-svc"
+    namespace = kubernetes_namespace.test_app.metadata[0].name
+  }
+
+  spec {
+    selector = {
+      app = "echo-test"
+    }
+
+    port {
+      port        = 80
+      target_port = 8080
+    }
+
+    type = "ClusterIP"
+  }
+}
+
+# # 9. Test Ingress Resource
+# resource "kubernetes_ingress_v1" "echo_test_ingress" {
+#   metadata {
+#     name      = "echo-test-ingress"
+#     namespace = kubernetes_namespace.test_app.metadata[0].name
+#     annotations = {
+#       "kubernetes.io/ingress.class" = "nginx"
+#     }
+#   }
+
+#   spec {
+#     ingress_class_name = "nginx"
+
+#     rule {
+#       host = "echo.local"
+
+#       http {
+#         path {
+#           path      = "/"
+#           path_type = "Prefix"
+
+#           backend {
+#             service {
+#               name = kubernetes_service.echo_test_svc.metadata[0].name
+#               port {
+#                 number = 80
+#               }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+# }
