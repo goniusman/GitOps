@@ -32,6 +32,14 @@ resource "helm_release" "kubernetes_dashboard" {
   namespace        = "kubernetes-dashboard"
   create_namespace = true
 
+  # Increase timeout from 300s (default) to 600s (10 minutes)
+  timeout = 600
+  wait    = true
+
+  # Force updates to handle residual resources
+  force_update    = true
+  cleanup_on_fail = true
+
   values = [
     yamlencode({
       auth = {

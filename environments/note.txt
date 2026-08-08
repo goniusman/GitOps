@@ -52,7 +52,6 @@ terraform apply -var="use_floci=true" -auto-approve
 
 
 
-
 >>>>> second
 cd environments/dev/platform
 terraform init -reconfigure
@@ -61,9 +60,10 @@ terraform apply -var="use_floci=true" -auto-approve
 
 
 >>>>> Destroy 
-terraform destroy -target=aws_instance.web_server
 terraform destroy -auto-approve
+terraform destroy -var="use_floci=true" -auto-approve
 
-
-
+terraform destroy -var="use_floci=true" -target=module.argocd
+terraform destroy -var="use_floci=true" -target=module.istio
+terraform destroy -var="use_floci=true"
 

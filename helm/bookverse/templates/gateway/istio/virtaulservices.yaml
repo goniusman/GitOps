@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 data:
   server.insecure: "true"
-  
+
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -14,33 +14,15 @@ metadata:
   namespace: argocd
 spec:
   hosts:
-  - "argocd.local"
+    - "argocd.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: argocd-server.argocd.svc.cluster.local
-        port:
-          number: 80 # Route straight into the unencrypted application port
-
-
----
-# apiVersion: networking.istio.io/v1beta1
-# kind: DestinationRule
-# metadata:
-#   name: argocd-server-tls-bridge
-#   namespace: argocd
-# spec:
-#   host: argocd-server.argocd.svc.cluster.local
-#   trafficPolicy:
-#     # --- FIX: Removed the invalid lowercase tlsmode field ---
-#     portLevelSettings:
-#     - port:
-#         number: 80
-#       tls:
-#         mode: SIMPLE # Forcefully initializes simple cleartext TLS backends to Argo
-
+    - route:
+        - destination:
+            host: argocd-server.argocd.svc.cluster.local
+            port:
+              number: 80
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -50,37 +32,33 @@ metadata:
   namespace: kubernetes-dashboard
 spec:
   hosts:
-  - "dashboard.local"
+    - "dashboard.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        # host: kubernetes-dashboard.kubernetes-dashboard.svc.cluster.local
-        # port:
-        #   number: 80
-        host: kubernetes-dashboard-kong-proxy.kubernetes-dashboard.svc.cluster.local
+    - route:
+        - destination:
+            host: kubernetes-dashboard-kong-proxy.kubernetes-dashboard.svc.cluster.local
             port:
-              number: 443
+              number: 443  # FIX: Indentation fixed here
 
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: bookverswe-application
+  name: bookverse-application
   namespace: bookverse
 spec:
   hosts:
-  - gateway.local
+    - "gateway.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: bookverse-nginx-gateway-service.bookverse.svc.cluster.local
-        port:
-          number: 80
-
+    - route:
+        - destination:
+            host: bookverse-nginx-gateway-service.bookverse.svc.cluster.local
+            port:
+              number: 80
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -90,15 +68,15 @@ metadata:
   namespace: bookverse
 spec:
   hosts:
-  - "rabbitmq.local"
+    - "rabbitmq.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: rabbitmq.bookverse.svc.cluster.local
-        port:
-          number: 15672
+    - route:
+        - destination:
+            host: rabbitmq.bookverse.svc.cluster.local
+            port:
+              number: 15672
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -108,16 +86,16 @@ metadata:
   namespace: bookverse
 spec:
   hosts:
-  - "mongocompass.local"
+    - "mongocompass.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: mongo-compass-web.bookverse.svc.cluster.local
-        port:
-          number: 8080
-    
+    - route:
+        - destination:
+            host: mongo-compass-web.bookverse.svc.cluster.local
+            port:
+              number: 8080
+
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -126,15 +104,15 @@ metadata:
   namespace: bookverse
 spec:
   hosts:
-  - "pgadmin.local"
+    - "pgadmin.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: pgadmin.bookverse.svc.cluster.local
-        port:
-          number: 5050
+    - route:
+        - destination:
+            host: pgadmin.bookverse.svc.cluster.local
+            port:
+              number: 5050
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -144,15 +122,15 @@ metadata:
   namespace: istio-system
 spec:
   hosts:
-  - "grafana.local"
+    - "grafana.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: monitoring-stack-grafana.monitoring.svc.cluster.local
-        port:
-          number: 80
+    - route:
+        - destination:
+            host: monitoring-stack-grafana.monitoring.svc.cluster.local
+            port:
+              number: 80
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -162,15 +140,15 @@ metadata:
   namespace: istio-system
 spec:
   hosts:
-  - "jaeger.local"
+    - "jaeger.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: jaeger-stack-query.monitoring.svc.cluster.local
-        port:
-          number: 16686
+    - route:
+        - destination:
+            host: jaeger-stack-query.monitoring.svc.cluster.local
+            port:
+              number: 16686
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -180,15 +158,15 @@ metadata:
   namespace: istio-system
 spec:
   hosts:
-  - "kiali.local"
+    - "kiali.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: kiali.istio-system.svc.cluster.local
-        port:
-          number: 20001
+    - route:
+        - destination:
+            host: kiali.istio-system.svc.cluster.local
+            port:
+              number: 20001
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -198,15 +176,15 @@ metadata:
   namespace: istio-system
 spec:
   hosts:
-  - "prometheus.local"
+    - "prometheus.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: monitoring-stack-kube-prom-prometheus.monitoring.svc.cluster.local
-        port:
-          number: 9090
+    - route:
+        - destination:
+            host: monitoring-stack-kube-prom-prometheus.monitoring.svc.cluster.local
+            port:
+              number: 9090
 
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -216,43 +194,12 @@ metadata:
   namespace: istio-system
 spec:
   hosts:
-  - "loki.local"
+    - "loki.local"
   gateways:
-  - istio-system/global-local-gateway
+    - istio-system/global-local-gateway
   http:
-  - route:
-    - destination:
-        host: loki-stack.monitoring.svc.cluster.local
-        port:
-          number: 3100
-
-
----
-# apiVersion: networking.istio.io/v1beta1
-# kind: VirtualService
-# metadata:
-#   name: zipkin
-#   namespace: istio-system
-# spec:
-#   hosts:
-#   - "zipkin.local"
-#   gateways:
-#   - istio-system/global-local-gateway
-#   http:
-#   - route:
-#     - destination:
-#         host: zipkin.istio-system.svc.cluster.local
-#         port:
-#           number: 9411
-
-
-
-
-
-
-
-
-
-
-
-
+    - route:
+        - destination:
+            host: loki-stack.monitoring.svc.cluster.local
+            port:
+              number: 3100
