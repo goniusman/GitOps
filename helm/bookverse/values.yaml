@@ -76,7 +76,7 @@ applications:
     replicaCount: 1
     image:
       repository: docker.io/goniusman/review
-      tag: "2d79e6b3be75863bcfc6e537a6c1aa93774baa03"
+      tag: "39fd49cb928ed3e3826b3dedfadb9b26528d37b1"
     service:
       port: 3000
       # micro_port: 8877
