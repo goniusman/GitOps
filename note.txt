@@ -3,6 +3,98 @@
 
 
 
+terraform validate
+terraform init
+terraform init -reconfigure
+terraform plan 
+
+>>>>>>>>> First apply(Terraform initializes providers before creating resources.)
+terraform apply -target=module.vpc
+terraform apply -target=module.eks
+
+>>>>>> Then
+terraform apply
+
+>>>>>> Remove or move it
+terraform state rm module.eks.kubernetes_namespace.bookverse
+
+
+
+
+dev/infrastructure
+Terraform State
+──────────────────────────
+VPC
+Subnets
+IGW
+NAT
+EKS
+IAM
+ECR
+S3
+RDS
+Redis
+
+
+dev/platform
+Terraform State
+──────────────────────────
+Namespaces
+Istio
+Ingress
+Metrics
+Dashboard
+ArgoCD
+Applications
+
+
+
+>>>>>>>>> First
+cd environments/dev/infrastructure
+terraform init -reconfigure
+terraform apply -var="use_floci=true" -auto-approve
+
+
+
+>>>>> second
+cd environments/dev/platform
+terraform init -reconfigure
+terraform apply -var="use_floci=true" -auto-approve
+
+
+
+>>>>> Destroy 
+terraform destroy -auto-approve
+terraform destroy -var="use_floci=true" -auto-approve
+
+terraform destroy -var="use_floci=true" -target=module.argocd
+terraform destroy -var="use_floci=true" -target=module.istio
+terraform destroy -var="use_floci=true"
+
+
+
+=====================================
+>>>>>>>>> First
+cd environments/dev/infrastructure
+terraform init -reconfigure
+terraform apply -var="use_floci=false" -auto-approve
+
+>>>>> second
+cd environments/dev/platform
+terraform init -reconfigure
+terraform apply -var="use_floci=false" -auto-approve
+
+>>>>> Destroy 
+terraform destroy -auto-approve
+terraform destroy -var="use_floci=false" -auto-approve
+
+terraform destroy -var="use_floci=false" -target=module.argocd
+terraform destroy -var="use_floci=false" -target=module.istio
+terraform destroy -var="use_floci=false"
+
+
+
+
 
 
 

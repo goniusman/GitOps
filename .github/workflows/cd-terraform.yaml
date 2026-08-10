@@ -1,0 +1,185 @@
+name: "Terraform AWS Deployment"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+
+permissions:
+  id-token: write            # Required for AWS OIDC authentication
+  contents: read
+  pull-requests: write       # Required to post plan comments on PRs
+
+jobs:
+  # ==========================================
+  # STEP 1: Detect which directory changed
+  # ==========================================
+  changes:
+    name: "Detect Changed Directories"
+    runs-on: ubuntu-latest
+    outputs:
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+      platform: ${{ steps.filter.outputs.platform }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check for file changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            infrastructure:
+              - 'terraform/environments/dev/infrastructure/**'
+              - 'terraform/modules/**'
+            platform:
+              - 'terraform/environments/dev/platform/**'
+              - 'terraform/modules/**'
+
+  # ==========================================
+  # JOB 1: Layer 1 - Infrastructure (VPC, EKS, RDS)
+  # ==========================================
+  infrastructure:
+    name: "Infrastructure"
+    needs: changes
+    if: ${{ needs.changes.outputs.infrastructure == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/environments/dev/infrastructure
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsTerraformRole # Replace with your IAM Role
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -var="use_floci=false"
+        continue-on-error: true
+
+      - name: Post Plan to Pull Request
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `#### Infrastructure Plan Status: \`${{ steps.plan.outcome }}\`
+            <details><summary>Show Infrastructure Plan</summary>
+
+            \`\`\`\n
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+
+            </details>`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -var="use_floci=false"
+
+  # ==========================================
+  # JOB 2: Layer 2 - Platform (Istio, ArgoCD, K8s Dashboard)
+  # ==========================================
+  platform:
+    name: "Platform"
+    needs: [changes, infrastructure]
+    # Runs if platform files changed AND infrastructure succeeded (or was skipped)
+    if: always() && needs.changes.outputs.platform == 'true' && (needs.infrastructure.result == 'success' || needs.infrastructure.result == 'skipped')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/environments/dev/platform
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsTerraformRole # Replace with your IAM Role
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -var="use_floci=false"
+        continue-on-error: true
+
+      - name: Post Plan to Pull Request
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `#### Platform Plan Status: \`${{ steps.plan.outcome }}\`
+            <details><summary>Show Platform Plan</summary>
+
+            \`\`\`\n
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+
+            </details>`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -var="use_floci=false"
+
+
+
+
+
+
+
+
+
+
+
+
+        

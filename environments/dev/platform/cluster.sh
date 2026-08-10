@@ -21,15 +21,17 @@ case "$1" in
         echo "=== [UP] Starting Local Minikube Infrastructure ==="
         
         echo "--> Initializing Terraform..."
-        terraform init --upgrade
+        # terraform init --upgrade
+        terraform init -reconfigure
         
         echo "--> Generating execution plan..."
         terraform plan
         
         echo "--> Applying infrastructure changes..."
-        terraform apply -auto-approve
+        # terraform apply -auto-approve
+        terraform apply -var="use_floci=true" -auto-approve
         
-        echo "=== [UP] Infrastructure is fully deployed! ==="
+        echo "=== [UP] Platform is fully deployed! ==="
         ;;
 
     down)
@@ -37,8 +39,9 @@ case "$1" in
         
         # Using || true ensures the script keeps moving even if Terraform has nothing to destroy
         echo "--> Running terraform destroy..."
-        terraform destroy -auto-approve || true
-        
+        # terraform destroy -auto-approve || true
+        terraform destroy -var="use_floci=true" -auto-approve || true
+
         echo "--> Removing resources from Terraform state tracking..."
         terraform state rm \
           helm_release.argocd \
