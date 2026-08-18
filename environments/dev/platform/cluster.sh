@@ -1,67 +1,73 @@
 #!/usr/bin/env bash
 
-# Exit immediately if a command exits with a non-zero status
+# Exit immediately if a command exits with a non-zero status during setup
 set -e
 
-# Help message
 usage() {
     echo "Usage: $0 [up|down]"
-    echo "  up   - Initialize, plan, and apply the local Minikube cluster infrastructure."
-    echo "  down - Safely destroy, un-track state, and force-purge the Minikube cluster."
+    echo "  up   - Initialize, plan, and apply local AWS infrastructure via Floci."
+    echo "  down - Destroy infrastructure, stop Floci, and reclaim local disk space."
     exit 1
 }
 
-# Ensure an argument was passed
 if [ -z "$1" ]; then
     usage
 fi
 
 case "$1" in
     up)
-        echo "=== [UP] Starting Local Minikube Infrastructure ==="
+        echo "=== [UP] Deploying Infrastructure to Floci ==="
         
         echo "--> Initializing Terraform..."
-        # terraform init --upgrade
-        terraform init -reconfigure
+        terraform init 
         
         echo "--> Generating execution plan..."
-        terraform plan
+        terraform plan -var="use_floci=true"
         
         echo "--> Applying infrastructure changes..."
-        # terraform apply -auto-approve
         terraform apply -var="use_floci=true" -auto-approve
         
-        echo "=== [UP] Platform is fully deployed! ==="
+        echo "=== [UP] Deployment complete! ==="
         ;;
 
     down)
-        echo "=== [DOWN] Tearing Down Local Infrastructure ==="
+        echo "=== [DOWN] Cleaning Up Infrastructure & Reclaiming Disk Space ==="
         
-        # Using || true ensures the script keeps moving even if Terraform has nothing to destroy
-        echo "--> Running terraform destroy..."
-        # terraform destroy -auto-approve || true
-        terraform destroy -var="use_floci=true" -auto-approve || true
+        # Disable strict exit so teardown completes even if one command returns non-zero
+        set +e
 
-        echo "--> Removing resources from Terraform state tracking..."
-        terraform state rm \
-          helm_release.argocd \
-          kubectl_manifest.argocd_root_application \
-          kubernetes_namespace.argocd \
-          kubernetes_persistent_volume.grafana_pv \
-          kubernetes_persistent_volume.prometheus_pv \
-          minikube_cluster.my_cluster || true
-        
-        echo "--> Forcing Minikube cluster deletion..."
-        minikube delete -p minikube || true
-        
-        echo "--> Cleaning up local state and lock files..."
-        rm -f terraform.tfstate terraform.tfstate.backup
-        rm -rf .terraform .terraform.lock.hcl
-        
-        echo "=== [DOWN] Teardown complete. Environment is completely clean! ==="
+        echo "--> Running Terraform Destroy..."
+        terraform destroy -var="use_floci=true" -auto-approve
+
+        echo "--> Stopping Floci process/containers..."
+        if command -v floci &> /dev/null; then
+            floci stop || true
+        fi
+
+        # Stop Floci container if running directly via Docker
+        if command -v docker &> /dev/null; then
+            docker stop $(docker ps -q --filter "ancestor=floci") 2>/dev/null || true
+            docker rm -f $(docker ps -a -q --filter "ancestor=floci") 2>/dev/null || true
+
+            echo "--> Reclaiming disk space (pruning unused Docker containers, images & volumes)..."
+            docker system prune --volumes -f
+        fi
+
+        echo "--> Removing local Terraform state, cached providers, and locks..."
+        rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
+
+        echo "--> Reclaiming local AWS CLI & Floci caches..."
+        rm -rf ~/.aws/cli/cache
+        rm -rf ~/.floci/cache 2>/dev/null || true
+
+        echo "=== [DOWN] Teardown complete. All temporary files and disk space reclaimed! ==="
         ;;
 
     *)
         usage
         ;;
 esac
+
+
+
+

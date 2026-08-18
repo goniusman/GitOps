@@ -48,20 +48,16 @@ ArgoCD
 Applications
 
 
-
+===================================== Floci mocked
 >>>>>>>>> First
 cd environments/dev/infrastructure
 terraform init -reconfigure
 terraform apply -var="use_floci=true" -auto-approve
 
-
-
 >>>>> second
 cd environments/dev/platform
 terraform init -reconfigure
 terraform apply -var="use_floci=true" -auto-approve
-
-
 
 >>>>> Destroy 
 terraform destroy -auto-approve
@@ -73,7 +69,7 @@ terraform destroy -var="use_floci=true"
 
 
 
-=====================================
+===================================== Real AWS
 >>>>>>>>> First
 cd environments/dev/infrastructure
 terraform init -reconfigure
